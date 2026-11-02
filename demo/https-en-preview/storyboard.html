@@ -1,0 +1,35 @@
+<!doctype html><html><head><meta charset="utf-8"><title>What happens when you open a website · 故事板</title><style>
+  body{margin:0;background:#f4f2ee;font-family:"Noto Sans SC","PingFang SC","WenQuanYi Zen Hei",Arial,sans-serif;color:#1d1d1f}
+  .wrap{width:1960px;padding:40px;box-sizing:border-box}
+  header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;border-bottom:3px solid #1d1d1f;padding-bottom:18px}
+  h1{font-size:44px;margin:0 0 8px} .meta{font-size:20px;color:#555;line-height:1.6} .sw{display:inline-block;width:28px;height:28px;border-radius:6px;margin-left:6px;border:1px solid #0002;vertical-align:middle}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  .card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 0 #0001,0 8px 24px #0000000f}
+  .card img{width:100%;display:block;aspect-ratio:1920/1080}
+  .body{padding:16px 18px 18px} .row{display:flex;justify-content:space-between;font-size:17px;color:#777;margin-bottom:8px}
+  .no{font-weight:800;color:#1d1d1f} .cap{font-size:21px;font-weight:600;line-height:1.45;margin-bottom:8px}
+  .nar{font-size:16px;color:#555;margin-bottom:8px;line-height:1.5} .acts{font-size:14px;color:#888;font-family:ui-monospace,Menlo,monospace;line-height:1.5}
+  .ch{display:inline-block;background:#1d1d1f;color:#fff;border-radius:6px;padding:1px 8px;font-size:14px;margin-left:6px}
+  </style></head><body><div class="wrap"><header><div><h1>What happens when you open a website</h1>
+  <div class="meta">主题 HTTPS request lifecycle · 受众 Junior developers · 语言 en-US · 6 个镜头 · 总时长 0:36.0</div></div>
+  <div class="meta">调色板 blueprint <span class="sw" style="background:#0d1b2a" title="bg"></span><span class="sw" style="background:#e6f1ff" title="ink"></span><span class="sw" style="background:#3a86ff" title="primary"></span><span class="sw" style="background:#4cc9f0" title="secondary"></span><span class="sw" style="background:#ffbe0b" title="accent"></span><span class="sw" style="background:#16304a" title="ground"></span></div></header><div class="grid">
+  <div class="card"><img src="scene-01.png"><div class="body"><div class="row"><span><span class="no">S01</span></span><span>0:00.0 – 0:04.0 · 4.0s</span></div>
+  <div class="cap">How HTTPS Works</div>
+  
+  <div class="acts">🎥 all<br>trace → zone_client, zone_dc</div></div></div><div class="card"><img src="scene-02.png"><div class="body"><div class="row"><span><span class="no">S02</span><span class="ch">01 · DNS lookup</span></span><span>0:04.0 – 0:10.0 · 6.0s</span></div>
+  <div class="cap">Your browser first asks DNS where example.com actually lives.</div>
+  
+  <div class="acts">🎥 browser, dns<br>assemble → zone_client, zone_dc<br>build → browser, dns<br>link → l_dns<br>flow → l_dns</div></div></div><div class="card"><img src="scene-03.png"><div class="body"><div class="row"><span><span class="no">S03</span><span class="ch">02 · TLS handshake</span></span><span>0:10.0 – 0:16.0 · 6.0s</span></div>
+  <div class="cap">Then it opens an encrypted TLS connection to the nearest edge server.</div>
+  
+  <div class="acts">🎥 browser, cdn<br>build → cdn<br>link → l_cdn<br>flow → l_cdn<br>callout → cdn</div></div></div><div class="card"><img src="scene-04.png"><div class="body"><div class="row"><span><span class="no">S04</span><span class="ch">03 · Load balancing</span></span><span>0:16.0 – 0:24.0 · 8.0s</span></div>
+  <div class="cap">A load balancer forwards the request to whichever app server is healthy.</div>
+  
+  <div class="acts">🎥 cdn, lb, app1, app2 · dim<br>build → lb<br>build → app1, app2<br>link → l_lb<br>link → l_a1, l_a2<br>flow → l_lb<br>flow → l_a1<br>highlight → app1</div></div></div><div class="card"><img src="scene-05.png"><div class="body"><div class="row"><span><span class="no">S05</span><span class="ch">04 · Read data</span></span><span>0:24.0 – 0:30.0 · 6.0s</span></div>
+  <div class="cap">The app server reads what it needs from the database.</div>
+  
+  <div class="acts">🎥 app1, app2, db<br>build → db<br>link → l_d1, l_d2<br>flow → l_d1</div></div></div><div class="card"><img src="scene-06.png"><div class="body"><div class="row"><span><span class="no">S06</span><span class="ch">05 · Response</span></span><span>0:30.0 – 0:36.0 · 6.0s</span></div>
+  <div class="cap">Finally, the response travels all the way back and your page renders.</div>
+  
+  <div class="acts">🎥 all<br>link → l_back<br>flow → l_back<br>flow → l_cdn, l_lb, l_a1, l_d1<br>callout → browser</div></div></div>
+  </div></div></body></html>

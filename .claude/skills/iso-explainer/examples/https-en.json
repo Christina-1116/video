@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "title": "What happens when you open a website",
+    "topic": "HTTPS request lifecycle",
+    "audience": "Junior developers",
+    "language": "en-US",
+    "palette": "blueprint",
+    "duration": 36,
+    "fps": 30
+  },
+  "nodes": [
+    { "id": "zone_client", "type": "platform", "pos": [-1.5, -2.6, -0.35], "size": [10, 10.2, 0.35], "title": "YOUR SIDE", "titlePos": [4, 0.8] },
+    { "id": "zone_dc", "type": "platform", "pos": [9, 0.4, -0.35], "size": [13.5, 9.2, 0.35], "title": "DATA CENTER" },
+
+    { "id": "browser", "type": "screen", "pos": [0, 4, 0], "size": [1.6, 2.2, 2.6], "label": "Browser", "color": "primary" },
+    { "id": "dns", "type": "server", "pos": [-0.1, -1.2, 0], "size": [1.8, 1.8, 2.2], "label": "DNS", "color": "neutral", "layers": 2, "icon": "?" },
+    { "id": "cdn", "type": "cloud", "pos": [5, 4.1, 0], "size": [2, 2, 1.8], "label": "Edge / CDN", "color": "secondary" },
+    { "id": "lb", "type": "gate", "pos": [10, 4.1, 0], "size": [2, 2, 1.8], "label": "Load balancer", "color": "primary", "icon": "⇆" },
+    { "id": "app1", "type": "server", "pos": [14, 1.8, 0], "size": [1.8, 1.8, 2.6], "label": "App server", "color": "primary" },
+    { "id": "app2", "type": "server", "pos": [14, 6.6, 0], "size": [1.8, 1.8, 2.6], "label": "App server", "color": "primary" },
+    { "id": "db", "type": "database", "pos": [19, 4.1, 0], "size": [2, 2, 2.4], "label": "Database", "color": "success" }
+  ],
+  "links": [
+    { "id": "l_dns", "from": "browser", "to": "dns", "route": "direct", "color": "neutral" },
+    { "id": "l_cdn", "from": "browser", "to": "cdn", "route": "direct", "color": "secondary", "label": "TLS" },
+    { "id": "l_lb", "from": "cdn", "to": "lb", "route": "direct", "color": "secondary" },
+    { "id": "l_a1", "from": "lb", "to": "app1", "route": "xy", "color": "primary" },
+    { "id": "l_a2", "from": "lb", "to": "app2", "route": "xy", "color": "primary" },
+    { "id": "l_d1", "from": "app1", "to": "db", "route": "xy", "color": "success" },
+    { "id": "l_d2", "from": "app2", "to": "db", "route": "xy", "color": "success" },
+    { "id": "l_back", "from": "lb", "to": "browser", "route": "arc", "height": 3, "color": "accent" }
+  ],
+  "scenes": [
+    {
+      "id": "intro", "duration": 4, "camera": { "focus": "all" },
+      "overlay": { "kicker": "In 30 seconds", "title": "How HTTPS Works", "subtitle": "From URL to rendered page" },
+      "actions": [{ "do": "trace", "target": ["zone_client", "zone_dc"], "at": 0.3, "dur": 2.4, "stagger": 0.4 }]
+    },
+    {
+      "id": "dns", "duration": 6, "chapter": "01 · DNS lookup",
+      "camera": { "focus": ["browser", "dns"], "pad": 1.7 },
+      "caption": "Your browser first asks DNS where example.com actually lives.",
+      "actions": [
+        { "do": "assemble", "target": ["zone_client", "zone_dc"], "at": 0, "dur": 1, "stagger": 0.2 },
+        { "do": "build", "target": ["browser", "dns"], "at": 0.3, "stagger": 0.6 },
+        { "do": "link", "target": "l_dns", "at": 2.4 },
+        { "do": "flow", "target": "l_dns", "at": 2.9, "dur": 2.8, "particles": 2, "text": "IP?" }
+      ]
+    },
+    {
+      "id": "tls", "duration": 6, "chapter": "02 · TLS handshake",
+      "camera": { "focus": ["browser", "cdn"], "pad": 1.6 },
+      "caption": "Then it opens an encrypted TLS connection to the nearest edge server.",
+      "actions": [
+        { "do": "build", "target": "cdn", "at": 0.2 },
+        { "do": "link", "target": "l_cdn", "at": 1.6 },
+        { "do": "flow", "target": "l_cdn", "at": 2.1, "dur": 3.6, "particles": 3, "text": "🔒" },
+        { "do": "callout", "target": "cdn", "at": 2.6, "dur": 3.2, "text": "Encrypted tunnel\nkeys exchanged once", "side": "right" }
+      ]
+    },
+    {
+      "id": "lb", "duration": 8, "chapter": "03 · Load balancing",
+      "camera": { "focus": ["cdn", "lb", "app1", "app2"], "pad": 1.25 },
+      "dim": true,
+      "caption": "A load balancer forwards the request to whichever app server is healthy.",
+      "actions": [
+        { "do": "build", "target": "lb", "at": 0.2 },
+        { "do": "build", "target": ["app1", "app2"], "at": 1.0, "stagger": 0.4 },
+        { "do": "link", "target": "l_lb", "at": 2.6 },
+        { "do": "link", "target": ["l_a1", "l_a2"], "at": 3.0, "stagger": 0.2 },
+        { "do": "flow", "target": "l_lb", "at": 3.4, "dur": 4.4, "particles": 3 },
+        { "do": "flow", "target": "l_a1", "at": 4.2, "dur": 3.6, "particles": 2 },
+        { "do": "highlight", "target": "app1", "at": 5, "dur": 2.8, "color": "success" }
+      ]
+    },
+    {
+      "id": "db", "duration": 6, "chapter": "04 · Read data",
+      "camera": { "focus": ["app1", "app2", "db"], "pad": 1.4 },
+      "caption": "The app server reads what it needs from the database.",
+      "actions": [
+        { "do": "build", "target": "db", "at": 0.2 },
+        { "do": "link", "target": ["l_d1", "l_d2"], "at": 1.8, "stagger": 0.2 },
+        { "do": "flow", "target": "l_d1", "at": 2.3, "dur": 3.5, "particle": "cube", "particles": 3, "color": "success" }
+      ]
+    },
+    {
+      "id": "back", "duration": 6, "chapter": "05 · Response",
+      "camera": { "focus": "all", "pad": 1.1 },
+      "caption": "Finally, the response travels all the way back and your page renders.",
+      "actions": [
+        { "do": "link", "target": "l_back", "at": 0.6, "dur": 1.2 },
+        { "do": "flow", "target": "l_back", "at": 1.4, "until": "end", "particles": 2, "text": "200 OK", "color": "accent" },
+        { "do": "flow", "target": ["l_cdn", "l_lb", "l_a1", "l_d1"], "at": 1.0, "until": "end", "particles": 2, "stagger": 0.2 },
+        { "do": "callout", "target": "browser", "at": 3, "dur": 2.8, "text": "Page rendered\n~100 ms round trip", "side": "left", "color": "success" }
+      ]
+    }
+  ]
+}

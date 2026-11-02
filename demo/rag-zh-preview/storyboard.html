@@ -1,0 +1,41 @@
+<!doctype html><html><head><meta charset="utf-8"><title>RAG：让大模型先查资料再回答 · 故事板</title><style>
+  body{margin:0;background:#f4f2ee;font-family:"Noto Sans SC","PingFang SC","WenQuanYi Zen Hei",Arial,sans-serif;color:#1d1d1f}
+  .wrap{width:1960px;padding:40px;box-sizing:border-box}
+  header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;border-bottom:3px solid #1d1d1f;padding-bottom:18px}
+  h1{font-size:44px;margin:0 0 8px} .meta{font-size:20px;color:#555;line-height:1.6} .sw{display:inline-block;width:28px;height:28px;border-radius:6px;margin-left:6px;border:1px solid #0002;vertical-align:middle}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  .card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 0 #0001,0 8px 24px #0000000f}
+  .card img{width:100%;display:block;aspect-ratio:1920/1080}
+  .body{padding:16px 18px 18px} .row{display:flex;justify-content:space-between;font-size:17px;color:#777;margin-bottom:8px}
+  .no{font-weight:800;color:#1d1d1f} .cap{font-size:21px;font-weight:600;line-height:1.45;margin-bottom:8px}
+  .nar{font-size:16px;color:#555;margin-bottom:8px;line-height:1.5} .acts{font-size:14px;color:#888;font-family:ui-monospace,Menlo,monospace;line-height:1.5}
+  .ch{display:inline-block;background:#1d1d1f;color:#fff;border-radius:6px;padding:1px 8px;font-size:14px;margin-left:6px}
+  </style></head><body><div class="wrap"><header><div><h1>RAG：让大模型先查资料再回答</h1>
+  <div class="meta">主题 检索增强生成（RAG）的工作流程 · 受众 非技术背景的产品 / 运营同学 · 语言 zh-CN · 8 个镜头 · 总时长 1:01.0</div></div>
+  <div class="meta">调色板 paper <span class="sw" style="background:#f6f1e7" title="bg"></span><span class="sw" style="background:#2b2d42" title="ink"></span><span class="sw" style="background:#5b8def" title="primary"></span><span class="sw" style="background:#7fc8a9" title="secondary"></span><span class="sw" style="background:#f4a259" title="accent"></span><span class="sw" style="background:#ebe2cf" title="ground"></span></div></header><div class="grid">
+  <div class="card"><img src="scene-01.png"><div class="body"><div class="row"><span><span class="no">S01</span></span><span>0:00.0 – 0:05.0 · 5.0s</span></div>
+  <div class="cap">RAG 检索增强生成</div>
+  
+  <div class="acts">🎥 all<br>trace → zone_kb, zone_qa</div></div></div><div class="card"><img src="scene-02.png"><div class="body"><div class="row"><span><span class="no">S02</span><span class="ch">01 · 用户提问</span></span><span>0:05.0 – 0:12.0 · 7.0s</span></div>
+  <div class="cap">用户向 AI 助手提出一个问题：公司的年假政策是什么？</div>
+  
+  <div class="acts">🎥 user, app<br>assemble → zone_kb, zone_qa<br>build → user<br>build → app<br>link → l_ask<br>flow → l_ask</div></div></div><div class="card"><img src="scene-03.png"><div class="body"><div class="row"><span><span class="no">S03</span><span class="ch">02 · 知识入库</span></span><span>0:12.0 – 0:21.0 · 9.0s</span></div>
+  <div class="cap">在此之前，企业文档已被切成小片段，经 Embedding 模型转成向量，存进向量数据库。</div>
+  
+  <div class="acts">🎥 docs, embed, vdb · dim<br>build → docs<br>build → embed<br>build → vdb<br>link → l_ingest<br>link → l_store<br>flow → l_ingest<br>flow → l_store</div></div></div><div class="card"><img src="scene-04.png"><div class="body"><div class="row"><span><span class="no">S04</span><span class="ch">03 · 问题向量化</span></span><span>0:21.0 – 0:28.0 · 7.0s</span></div>
+  <div class="cap">提问时，问题也会被同一个 Embedding 模型转换成向量。</div>
+  
+  <div class="acts">🎥 app, embed<br>link → l_query<br>flow → l_query<br>highlight → embed</div></div></div><div class="card"><img src="scene-05.png"><div class="body"><div class="row"><span><span class="no">S05</span><span class="ch">04 · 相似度检索</span></span><span>0:28.0 – 0:36.0 · 8.0s</span></div>
+  <div class="cap">向量数据库按语义相似度，找出与问题最相关的几段原文。</div>
+  
+  <div class="acts">🎥 embed, vdb<br>flow → l_store<br>highlight → vdb<br>callout → vdb</div></div></div><div class="card"><img src="scene-06.png"><div class="body"><div class="row"><span><span class="no">S06</span><span class="ch">05 · 拼接提示词</span></span><span>0:36.0 – 0:45.0 · 9.0s</span></div>
+  <div class="cap">检索到的片段和原始问题拼在一起，作为提示词送进大语言模型。</div>
+  
+  <div class="acts">🎥 vdb, llm, app<br>build → llm<br>link → l_retrieve<br>link → l_prompt<br>flow → l_retrieve<br>flow → l_prompt</div></div></div><div class="card"><img src="scene-07.png"><div class="body"><div class="row"><span><span class="no">S07</span><span class="ch">06 · 生成回答</span></span><span>0:45.0 – 0:53.0 · 8.0s</span></div>
+  <div class="cap">模型基于真实资料生成回答并标注出处，大幅减少胡编乱造。</div>
+  
+  <div class="acts">🎥 llm, app, user<br>highlight → llm<br>link → l_answer<br>flow → l_answer<br>callout → user</div></div></div><div class="card"><img src="scene-08.png"><div class="body"><div class="row"><span><span class="no">S08</span><span class="ch">总结</span></span><span>0:53.0 – 1:01.0 · 8.0s</span></div>
+  <div class="cap">这就是 RAG：先检索，再增强，后生成。</div>
+  
+  <div class="acts">🎥 all<br>flow → l_ingest, l_store, l_query, l_retrieve, l_prompt, l_answer</div></div></div>
+  </div></div></body></html>

@@ -1,0 +1,31 @@
+1
+00:00:04,150 --> 00:00:09,850
+Your browser first asks DNS where example.com actually lives.
+
+2
+00:00:10,150 --> 00:00:12,665
+Then it opens an encrypted TLS
+
+3
+00:00:12,665 --> 00:00:15,850
+connection to the nearest edge server.
+
+4
+00:00:16,150 --> 00:00:20,054
+A load balancer forwards the request
+
+5
+00:00:20,054 --> 00:00:23,850
+to whichever app server is healthy.
+
+6
+00:00:24,150 --> 00:00:29,850
+The app server reads what it needs from the database.
+
+7
+00:00:30,150 --> 00:00:32,916
+Finally, the response travels all
+
+8
+00:00:32,916 --> 00:00:35,850
+the way back and your page renders.

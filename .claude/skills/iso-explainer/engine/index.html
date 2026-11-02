@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Iso Explainer Stage</title>
+<style>
+  :root { --W: 1920px; --H: 1080px; --bg: #0d1b2a; --bg2: #13263b; --ink: #e6f1ff; --text: #e6f1ff;
+    --capbg: rgba(0,0,0,.75); --captext: #fff; --accent: #ffbe0b; --labelbg: #0d1b2a; --capsize: 40px;
+    --font: "Inter", "Noto Sans SC", "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", "WenQuanYi Zen Hei", "Helvetica Neue", Arial, sans-serif; }
+  html, body { margin: 0; padding: 0; background: #000; }
+  #stage { position: relative; width: var(--W); height: var(--H); overflow: hidden;
+    background: radial-gradient(ellipse at 50% 42%, var(--bg2) 0%, var(--bg) 70%); font-family: var(--font); }
+  #world { position: absolute; inset: 0; font-family: var(--font); }
+  #vignette { position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,.22) 100%); }
+  #caption { position: absolute; left: 50%; bottom: calc(var(--H) * 0.065); transform: translateX(-50%);
+    max-width: 78%; padding: .38em .9em; border-radius: .45em; background: var(--capbg); color: var(--captext);
+    font-size: var(--capsize); font-weight: 600; line-height: 1.35; text-align: center; letter-spacing: .01em;
+    opacity: 0; white-space: pre-wrap; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
+  #chapter { position: absolute; left: 64px; top: 52px; padding: 10px 22px 10px 18px; font-size: 26px; font-weight: 800;
+    color: var(--text); border-left: 8px solid var(--accent); background: color-mix(in srgb, var(--labelbg) 82%, transparent);
+    border-radius: 0 10px 10px 0; opacity: 0; letter-spacing: .03em; }
+  .titlecard { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; color: var(--text); opacity: 0; pointer-events: none; }
+  .titlecard.top { justify-content: flex-start; padding-top: calc(var(--H) * .1); }
+  .titlecard.bottom { justify-content: flex-end; padding-bottom: calc(var(--H) * .2); }
+  .titlecard .kicker { font-size: 28px; font-weight: 800; letter-spacing: .3em; color: var(--accent); margin-bottom: 18px; text-transform: uppercase; }
+  .titlecard .title { font-size: 92px; font-weight: 900; line-height: 1.1; max-width: 80%;
+    text-shadow: 0 4px 0 color-mix(in srgb, var(--bg) 60%, transparent), 0 10px 40px rgba(0,0,0,.25); }
+  .titlecard .subtitle { margin-top: 22px; font-size: 36px; font-weight: 500; opacity: .85; max-width: 70%; }
+  #progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--accent); width: 0; }
+  #brand { position: absolute; right: 48px; top: 52px; font-size: 22px; font-weight: 700; color: var(--text); opacity: .6; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="world" xmlns="http://www.w3.org/2000/svg"></svg>
+  <div id="vignette"></div>
+  <div id="titlecard" class="titlecard"></div>
+  <div id="chapter"></div>
+  <div id="brand"></div>
+  <div id="caption"></div>
+  <div id="progress"></div>
+</div>
+<script src="palettes.js"></script>
+<script src="engine.js"></script>
+<script>
+  // Live preview mode: open index.html?sb=../examples/rag-zh.json in a browser to scrub with ←/→ and play with space.
+  (async function () {
+    const q = new URLSearchParams(location.search);
+    if (!q.get('sb')) return;
+    const sb = await (await fetch(q.get('sb'))).json();
+    const info = ISO.init(sb);
+    let t = 0, playing = true, last = performance.now();
+    function tick(now) { if (playing) { t = (t + (now - last) / 1000) % info.duration; } last = now; ISO.render(t); requestAnimationFrame(tick); }
+    addEventListener('keydown', (e) => { if (e.key === ' ') playing = !playing; if (e.key === 'ArrowRight') t += 1; if (e.key === 'ArrowLeft') t = Math.max(0, t - 1); });
+    requestAnimationFrame(tick);
+  })();
+</script>
+</body>
+</html>

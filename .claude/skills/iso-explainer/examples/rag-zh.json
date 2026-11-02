@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "title": "RAG：让大模型先查资料再回答",
+    "topic": "检索增强生成（RAG）的工作流程",
+    "audience": "非技术背景的产品 / 运营同学",
+    "language": "zh-CN",
+    "palette": "paper",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "brand": "ISO EXPLAINER"
+  },
+  "nodes": [
+    { "id": "zone_kb", "type": "platform", "pos": [-1.2, -0.6, -0.35], "size": [15, 6.2, 0.35], "title": "知识库 · 离线索引" },
+    { "id": "zone_qa", "type": "platform", "pos": [-1.2, 6.6, -0.35], "size": [15, 8, 0.35], "title": "在线问答", "titlePos": [7.4, 0.6] },
+
+    { "id": "user", "type": "person", "pos": [0, 8.4, 0], "size": [1.4, 1.4, 2.4], "label": "用户", "color": "secondary" },
+    { "id": "app", "type": "screen", "pos": [4, 8, 0], "size": [1.6, 2.2, 2.6], "label": "AI 助手", "color": "primary" },
+
+    { "id": "docs", "type": "doc", "pos": [0, 2, 0], "size": [1.8, 2.2, 0.35], "label": "企业文档", "layers": 4 },
+    { "id": "embed", "type": "chip", "pos": [5, 2, 0], "size": [2.2, 2.2, 1.3], "label": "Embedding 模型", "icon": "⇄", "accent": "accent" },
+    { "id": "vdb", "type": "database", "pos": [10, 1.9, 0], "size": [2.4, 2.4, 2.8], "label": "向量数据库", "color": "secondary", "layers": 3 },
+    { "id": "llm", "type": "ai", "pos": [9.9, 11, 0], "size": [2.6, 2.6, 3.2], "label": "大语言模型", "color": "primary", "icon": "✦" }
+  ],
+  "links": [
+    { "id": "l_ask", "from": "user", "to": "app", "route": "direct", "color": "secondary" },
+    { "id": "l_ingest", "from": "docs", "to": "embed", "route": "direct", "color": "neutral" },
+    { "id": "l_store", "from": "embed", "to": "vdb", "route": "direct", "color": "secondary" },
+    { "id": "l_query", "from": "app", "to": "embed", "route": "xy", "color": "accent" },
+    { "id": "l_retrieve", "from": "vdb", "to": "llm", "route": "direct", "color": "secondary" },
+    { "id": "l_prompt", "from": "app", "to": "llm", "route": "yx", "color": "accent" },
+    { "id": "l_answer", "from": "llm", "to": "app", "route": "arc", "height": 2.4, "color": "success" }
+  ],
+  "scenes": [
+    {
+      "id": "intro", "duration": 5,
+      "camera": { "focus": "all", "drift": 0.06 },
+      "overlay": { "kicker": "3 分钟看懂", "title": "RAG 检索增强生成", "subtitle": "让大模型先查资料，再回答问题" },
+      "actions": [
+        { "do": "trace", "target": ["zone_kb", "zone_qa"], "at": 0.4, "dur": 2.6, "stagger": 0.5 }
+      ]
+    },
+    {
+      "id": "ask", "duration": 7, "chapter": "01 · 用户提问",
+      "camera": { "focus": ["user", "app"], "pad": 1.9 },
+      "caption": "用户向 AI 助手提出一个问题：公司的年假政策是什么？",
+      "actions": [
+        { "do": "assemble", "target": ["zone_kb", "zone_qa"], "at": 0, "dur": 1.0, "stagger": 0.2 },
+        { "do": "build", "target": "user", "at": 0.4 },
+        { "do": "build", "target": "app", "at": 1.2 },
+        { "do": "link", "target": "l_ask", "at": 2.8 },
+        { "do": "flow", "target": "l_ask", "at": 3.4, "dur": 3.2, "particles": 2, "text": "问题" }
+      ]
+    },
+    {
+      "id": "index", "duration": 9, "chapter": "02 · 知识入库",
+      "camera": { "focus": ["docs", "embed", "vdb"], "pad": 1.35 },
+      "dim": true,
+      "caption": "在此之前，企业文档已被切成小片段，经 Embedding 模型转成向量，存进向量数据库。",
+      "actions": [
+        { "do": "build", "target": "docs", "at": 0.3 },
+        { "do": "build", "target": "embed", "at": 1.2 },
+        { "do": "build", "target": "vdb", "at": 2.1, "dur": 2.0 },
+        { "do": "link", "target": "l_ingest", "at": 3.4 },
+        { "do": "link", "target": "l_store", "at": 4.0 },
+        { "do": "flow", "target": "l_ingest", "at": 4.4, "dur": 4.2, "particle": "cube", "particles": 3, "color": "#ffffff" },
+        { "do": "flow", "target": "l_store", "at": 5.2, "dur": 3.6, "particle": "cube", "particles": 3, "color": "secondary" }
+      ]
+    },
+    {
+      "id": "embedq", "duration": 7, "chapter": "03 · 问题向量化",
+      "camera": { "focus": ["app", "embed"], "pad": 1.45 },
+      "caption": "提问时，问题也会被同一个 Embedding 模型转换成向量。",
+      "actions": [
+        { "do": "link", "target": "l_query", "at": 0.4, "dur": 1.2 },
+        { "do": "flow", "target": "l_query", "at": 1.4, "dur": 4.2, "particles": 2, "text": "Q" },
+        { "do": "highlight", "target": "embed", "at": 3.2, "dur": 3.4 }
+      ]
+    },
+    {
+      "id": "search", "duration": 8, "chapter": "04 · 相似度检索",
+      "camera": { "focus": ["embed", "vdb"], "pad": 1.6 },
+      "caption": "向量数据库按语义相似度，找出与问题最相关的几段原文。",
+      "actions": [
+        { "do": "flow", "target": "l_store", "at": 0.3, "dur": 3.4, "particles": 2, "text": "查询向量", "color": "accent" },
+        { "do": "highlight", "target": "vdb", "at": 1.8, "dur": 5.6 },
+        { "do": "callout", "target": "vdb", "at": 2.8, "dur": 4.6, "text": "Top-K 相似片段\n语义最接近的 3 段原文", "side": "right" }
+      ]
+    },
+    {
+      "id": "augment", "duration": 9, "chapter": "05 · 拼接提示词",
+      "camera": { "focus": ["vdb", "llm", "app"], "pad": 1.25 },
+      "caption": "检索到的片段和原始问题拼在一起，作为提示词送进大语言模型。",
+      "actions": [
+        { "do": "build", "target": "llm", "at": 0.2, "dur": 2.0 },
+        { "do": "link", "target": "l_retrieve", "at": 2.0 },
+        { "do": "link", "target": "l_prompt", "at": 2.3, "dur": 1.2 },
+        { "do": "flow", "target": "l_retrieve", "at": 2.8, "dur": 5.6, "particle": "cube", "particles": 3, "color": "secondary" },
+        { "do": "flow", "target": "l_prompt", "at": 3.2, "dur": 5.2, "particles": 2, "text": "问题" }
+      ]
+    },
+    {
+      "id": "generate", "duration": 8, "chapter": "06 · 生成回答",
+      "camera": { "focus": ["llm", "app", "user"], "pad": 1.3 },
+      "caption": "模型基于真实资料生成回答并标注出处，大幅减少胡编乱造。",
+      "actions": [
+        { "do": "highlight", "target": "llm", "at": 0, "dur": 3 },
+        { "do": "link", "target": "l_answer", "at": 1.4, "dur": 1.2 },
+        { "do": "flow", "target": "l_answer", "at": 2.2, "dur": 5.4, "particles": 2, "text": "答案", "color": "success" },
+        { "do": "callout", "target": "user", "at": 4.2, "dur": 3.4, "text": "有据可查的回答\n附引用来源", "color": "success", "side": "left" }
+      ]
+    },
+    {
+      "id": "outro", "duration": 8, "chapter": "总结",
+      "camera": { "focus": "all", "pad": 1.12, "drift": 0.04 },
+      "overlay": { "title": "检索 → 增强 → 生成", "position": "top" },
+      "caption": "这就是 RAG：先检索，再增强，后生成。",
+      "actions": [
+        { "do": "flow", "target": ["l_ingest", "l_store", "l_query", "l_retrieve", "l_prompt", "l_answer"], "at": 0.5, "until": "end", "particles": 2, "stagger": 0.25 }
+      ]
+    }
+  ]
+}
