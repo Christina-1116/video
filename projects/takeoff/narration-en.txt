@@ -1,0 +1,11 @@
+[01] This is a seventy-eight-ton passenger jet. In about forty seconds, it will leave the ground.
+
+[02] Trick one: thrust. Two turbofan engines swallow air and blast it out the back. By Newton's third law, the jet surges forward, to about two hundred and seventy kilometers per hour.
+
+[03] Trick two: lift. The wing is curved and tilted slightly up. Air over the top speeds up and its pressure drops, while the wing pushes the air below it down. That pressure difference lifts the wing.
+
+[04] At rotation speed, the pilot pulls back. The nose rises about ten degrees, flaps add extra lift, and the wheels leave the runway.
+
+[05] The catch: lift grows with the square of speed. Half the speed gives only a quarter of the lift. That's why runways are kilometers long.
+
+[06] Engines to move. Wings to fly. That's how a plane takes off.

@@ -158,7 +158,7 @@
 
   // ---------- camera ----------
   function nodeBounds(n, t) {
-    if (n.type === 'object') return objectWorldCorners(n, t || 0).map(isoV);
+    if (n.type === 'object') { const X = xformAt(n, t || 0); return (n._verts || []).map((v) => isoV(X.T(v))); }
     const [w, d, h] = n.size;
     const [x, y, z] = n.pos;
     const pts = [];
@@ -838,6 +838,7 @@
       g.faces.forEach((f) => pts.push(...f.pts)); g.edges.forEach((e) => pts.push(...e.pts));
     }
     if (!pts.length) return { c: [0, 0, 0], min: [0, 0, 0], max: [1, 1, 1] };
+    n._verts = pts.filter((_, i) => i % Math.max(1, Math.floor(pts.length / 400)) === 0); // real silhouette points for camera framing
     const min = [0, 1, 2].map((i) => Math.min(...pts.map((p) => p[i]))), max = [0, 1, 2].map((i) => Math.max(...pts.map((p) => p[i])));
     return { c: V.mul(V.add(min, max), 0.5), min, max };
   }
@@ -1002,7 +1003,7 @@
         const dim = dimFactor(baseId, t) * nodeState(n, t).vis;
         if (dim <= 0.01) continue;
         let piece = '';
-        if (a.do === 'emit') piece = drawEmit(n, a, t);
+        if (a.do === 'emit') piece = `<g filter="url(#pglow)">${drawEmit(n, a, t)}</g>`;
         else if (a.do === 'stream') piece = drawStream(n, a, t);
         else if (a.do === 'force') piece = drawForce(n, a, t);
         if (piece) s += `<g opacity="${f(dim)}">${piece}</g>`;
@@ -1090,6 +1091,7 @@
     });
     s += '<filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>';
     s += '<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
+    s += '<filter id="pglow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
     DEFS = s + '</defs>';
   }
   // ---------- grid ----------
@@ -1291,6 +1293,8 @@
     const bEl = $('brand');
     if (b && typeof b === 'object') { bEl.className = 'brandblock'; bEl.innerHTML = (b.mark ? `<span class="b-mark">${esc(b.mark)}</span>` : '') + `<span class="b-text"><span class="b-name">${esc(b.name || '')}</span><span class="b-tag">${esc(b.tagline || '')}</span></span>`; }
     else { bEl.className = ''; bEl.textContent = b || ''; }
+    $('watermark').textContent = SB.meta.watermark || '';
+    $('grain').style.opacity = SB.meta.grain != null ? SB.meta.grain : (SB.meta.style === 'wire' ? 0.07 : 0);
     // progress ticks at chapter changes
     const ticks = $('ticks'); ticks.innerHTML = '';
     scenes.forEach((sc, i) => { if (i > 0 && sc.chapter && sc.chapter !== scenes[i - 1].chapter) { const d = document.createElement('i'); d.style.left = (sc.start / total) * 100 + '%'; ticks.appendChild(d); } });

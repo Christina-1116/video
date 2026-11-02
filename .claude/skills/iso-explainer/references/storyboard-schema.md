@@ -25,6 +25,8 @@
 | `annotationSize` `labelSize` | 26 · 22 | 标注 / 名牌字号 |
 | `cameraDrift` | 0.05 | 镜头内缓推幅度 |
 | `progress` | true | 底部进度条（章节处自动加刻度） |
+| `watermark` | — | 右下角水印文字，如 `"by Dong"` |
+| `grain` | 0.07(wire)/0 | 胶片颗粒强度（高级质感），0 关闭 |
 | `voice` `voiceVolume` `bgm` `bgmVolume` `audioPad` | — | 旁白音色、音量、背景音乐、旁白后留白 |
 
 ---

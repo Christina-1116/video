@@ -78,7 +78,10 @@ node $SKILL/scripts/render.js preview ./<slug>/<slug>.json --out ./<slug>/previe
 ```bash
 python3 $SKILL/scripts/tts.py ./<slug>/<slug>.json [--voice zh-CN-YunxiNeural] [--rate +5%]
 ```
-生成 `<slug>-audio/scene-XX.mp3` 与 `<slug>.voiced.json`，渲染时镜头自动拉长到“音频 + 0.6 s”并混音。edge-tts 不可用时，用任何 TTS 或真人录音，把路径写进每个镜头的 `"audio"`。背景音乐：`meta.bgm` 或 `--bgm music.mp3 --bgm-volume 0.12`。
+生成 `<slug>-audio/scene-XX.mp3` 与 `<slug>.voiced.json`，渲染时镜头自动拉长到“音频 + 0.6 s”并混音。edge-tts 不可用时，用任何 TTS 或真人录音，把路径写进每个镜头的 `"audio"`。
+- **接了 LibTV 时（推荐，发音最准）**：`doctor` → `create_project` → `list_voices`（英文用 `English_Trustworthy_Man` 等原生英文音色，中文用 `Chinese (Mandarin)_Reliable_Executive` 等）→ 每个镜头 `synthesize_speech`（模型 `speech-2.8-hd`，旁白用 `narration` 字段：数字写成单词/汉字以保证读法）→ `task_status` 取音频 URL → 下载到 `audio-<lang>/scene-XX.mp3`。下载需要运行环境能访问 `libtv-res.liblib.art`。
+- 旁白文本与字幕分开：`caption` 用阿拉伯数字与单位（“270 km/h”），`narration` 写成读法（“two hundred and seventy kilometers per hour” / “二百七十公里”）。
+- 双语版本：同一份视觉 spec 生成 `<slug>-en.json` 与 `<slug>-zh.json`（见 `projects/takeoff/build.py` 的写法），再分别配音、渲染。背景音乐：`meta.bgm` 或 `--bgm music.mp3 --bgm-volume 0.12`。
 
 ## ⑧ 成片
 ```bash

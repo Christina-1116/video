@@ -1,0 +1,35 @@
+<!doctype html><html><head><meta charset="utf-8"><title>How a plane takes off · 故事板</title><style>
+  body{margin:0;background:#f4f2ee;font-family:"Noto Sans SC","PingFang SC","WenQuanYi Zen Hei",Arial,sans-serif;color:#1d1d1f}
+  .wrap{width:1960px;padding:40px;box-sizing:border-box}
+  header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;border-bottom:3px solid #1d1d1f;padding-bottom:18px}
+  h1{font-size:44px;margin:0 0 8px} .meta{font-size:20px;color:#555;line-height:1.6} .sw{display:inline-block;width:28px;height:28px;border-radius:6px;margin-left:6px;border:1px solid #0002;vertical-align:middle}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  .card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 0 #0001,0 8px 24px #0000000f}
+  .card img{width:100%;display:block;aspect-ratio:1920/1080}
+  .body{padding:16px 18px 18px} .row{display:flex;justify-content:space-between;font-size:17px;color:#777;margin-bottom:8px}
+  .no{font-weight:800;color:#1d1d1f} .cap{font-size:21px;font-weight:600;line-height:1.45;margin-bottom:8px}
+  .nar{font-size:16px;color:#555;margin-bottom:8px;line-height:1.5} .acts{font-size:14px;color:#888;font-family:ui-monospace,Menlo,monospace;line-height:1.5}
+  .ch{display:inline-block;background:#1d1d1f;color:#fff;border-radius:6px;padding:1px 8px;font-size:14px;margin-left:6px}
+  </style></head><body><div class="wrap"><header><div><h1>How a plane takes off</h1>
+  <div class="meta">主题 Airliner takeoff: thrust, lift, rotation · 受众 General audience · 语言 en-US · 6 个镜头 · 总时长 1:01.9</div></div>
+  <div class="meta">调色板 midnight <span class="sw" style="background:#070e1a" title="bg"></span><span class="sw" style="background:#e8eef7" title="ink"></span><span class="sw" style="background:#e8eef7" title="primary"></span><span class="sw" style="background:#7da2ff" title="secondary"></span><span class="sw" style="background:#4fd1c5" title="accent"></span><span class="sw" style="background:#16263d" title="ground"></span></div></header><div class="grid">
+  <div class="card"><img src="scene-01.png"><div class="body"><div class="row"><span><span class="no">S01</span></span><span>0:00.0 – 0:07.0 · 7.0s</span></div>
+  <div class="cap">This is a 78-ton passenger jet. In about 40 seconds, it will leave the ground.</div>
+  <div class="nar">🎙 This is a seventy-eight-ton passenger jet. In about forty seconds, it will leave the ground.</div>
+  <div class="acts">🎥 plane<br>build → runway<br>build → plane<br>trace → plane.gear</div></div></div><div class="card"><img src="scene-02.png"><div class="body"><div class="row"><span><span class="no">S02</span></span><span>0:07.0 – 0:20.1 · 13.1s</span></div>
+  <div class="cap">Trick one: thrust. Two turbofan engines swallow air and blast it out the back. By Newton's third law, the jet surges forward, to about 270 km/h.</div>
+  <div class="nar">🎙 Trick one: thrust. Two turbofan engines swallow air and blast it out the back. By Newton's third law, the jet surges forward, to about two hundred and seventy kilometers per hour.</div>
+  <div class="acts">🎥 follow plane<br>build → plane.fan<br>annotate → plane 「Turbofan」<br>stream → plane<br>emit → plane<br>annotate → plane 「Air blasts back」<br>force → plane<br>move → plane<br>readout → plane 「SPEED {v} km/h」</div></div></div><div class="card"><img src="scene-03.png"><div class="body"><div class="row"><span><span class="no">S03</span></span><span>0:20.1 – 0:35.1 · 15.0s</span></div>
+  <div class="cap">Trick two: lift. The wing is curved and tilted slightly up. Air over the top speeds up and its pressure drops, while the wing pushes the air below it down. That pressure difference lifts the wing.</div>
+  
+  <div class="acts">🎥 follow plane<br>move → plane<br>readout → plane 「SPEED {v} km/h」<br>highlight → plane<br>stream → plane<br>stream → plane<br>annotate → plane 「Faster air, lower pressure」<br>annotate → plane 「Air pushed down」<br>force → plane</div></div></div><div class="card"><img src="scene-04.png"><div class="body"><div class="row"><span><span class="no">S04</span></span><span>0:35.1 – 0:45.1 · 10.0s</span></div>
+  <div class="cap">At rotation speed, the pilot pulls back. The nose rises about ten degrees, flaps add extra lift, and the wheels leave the runway.</div>
+  
+  <div class="acts">🎥 follow plane<br>move → plane<br>build → plane.flaps<br>highlight → plane.flaps<br>annotate → plane 「Flaps extended」<br>move → plane<br>readout → plane 「PITCH {v}°」<br>move → plane<br>hide → plane.gear<br>annotate → plane 「Gear up」</div></div></div><div class="card"><img src="scene-05.png"><div class="body"><div class="row"><span><span class="no">S05</span></span><span>0:45.1 – 0:55.9 · 10.8s</span></div>
+  <div class="cap">The catch: lift grows with the square of speed. Half the speed gives only a quarter of the lift. That's why runways are kilometers long.</div>
+  
+  <div class="acts">🎥 follow plane<br>move → plane<br>readout → plane 「ALTITUDE {v} m」<br>chart → —<br>annotate → plane 「Lift ∝ speed²」</div></div></div><div class="card"><img src="scene-06.png"><div class="body"><div class="row"><span><span class="no">S06</span></span><span>0:55.9 – 1:01.9 · 6.0s</span></div>
+  <div class="cap">Engines to move. Wings to fly. That's how a plane takes off.</div>
+  
+  <div class="acts">🎥 follow plane<br>move → plane</div></div></div>
+  </div></div></body></html>

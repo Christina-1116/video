@@ -1,0 +1,67 @@
+1
+00:00:00,150 --> 00:00:02,847
+This is a 78-ton passenger jet.
+
+2
+00:00:02,847 --> 00:00:06,850
+In about 40 seconds, it will leave the ground.
+
+3
+00:00:07,150 --> 00:00:08,773
+Trick one: thrust.
+
+4
+00:00:08,773 --> 00:00:14,091
+Two turbofan engines swallow air and blast it out the back.
+
+5
+00:00:14,091 --> 00:00:19,950
+By Newton's third law, the jet surges forward, to about 270 km/h.
+
+6
+00:00:20,250 --> 00:00:21,469
+Trick two: lift.
+
+7
+00:00:21,469 --> 00:00:24,668
+The wing is curved and tilted slightly up.
+
+8
+00:00:24,668 --> 00:00:31,903
+Air over the top speeds up and its pressure drops, while the wing pushes the air below it down.
+
+9
+00:00:31,903 --> 00:00:34,950
+That pressure difference lifts the wing.
+
+10
+00:00:35,250 --> 00:00:38,281
+At rotation speed, the pilot pulls back.
+
+11
+00:00:38,281 --> 00:00:44,950
+The nose rises about ten degrees, flaps add extra lift, and the wheels leave the runway.
+
+12
+00:00:45,250 --> 00:00:48,933
+The catch: lift grows with the square of speed.
+
+13
+00:00:48,933 --> 00:00:52,694
+Half the speed gives only a quarter of the lift.
+
+14
+00:00:52,694 --> 00:00:55,750
+That's why runways are kilometers long.
+
+15
+00:00:56,050 --> 00:00:57,622
+Engines to move.
+
+16
+00:00:57,622 --> 00:00:58,900
+Wings to fly.
+
+17
+00:00:58,900 --> 00:01:01,750
+That's how a plane takes off.

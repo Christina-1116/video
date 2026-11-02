@@ -1,0 +1,35 @@
+<!doctype html><html><head><meta charset="utf-8"><title>飞机是怎么起飞的 · 故事板</title><style>
+  body{margin:0;background:#f4f2ee;font-family:"Noto Sans SC","PingFang SC","WenQuanYi Zen Hei",Arial,sans-serif;color:#1d1d1f}
+  .wrap{width:1960px;padding:40px;box-sizing:border-box}
+  header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;border-bottom:3px solid #1d1d1f;padding-bottom:18px}
+  h1{font-size:44px;margin:0 0 8px} .meta{font-size:20px;color:#555;line-height:1.6} .sw{display:inline-block;width:28px;height:28px;border-radius:6px;margin-left:6px;border:1px solid #0002;vertical-align:middle}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  .card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 0 #0001,0 8px 24px #0000000f}
+  .card img{width:100%;display:block;aspect-ratio:1920/1080}
+  .body{padding:16px 18px 18px} .row{display:flex;justify-content:space-between;font-size:17px;color:#777;margin-bottom:8px}
+  .no{font-weight:800;color:#1d1d1f} .cap{font-size:21px;font-weight:600;line-height:1.45;margin-bottom:8px}
+  .nar{font-size:16px;color:#555;margin-bottom:8px;line-height:1.5} .acts{font-size:14px;color:#888;font-family:ui-monospace,Menlo,monospace;line-height:1.5}
+  .ch{display:inline-block;background:#1d1d1f;color:#fff;border-radius:6px;padding:1px 8px;font-size:14px;margin-left:6px}
+  </style></head><body><div class="wrap"><header><div><h1>飞机是怎么起飞的</h1>
+  <div class="meta">主题 客机起飞：推力、升力、抬轮 · 受众 大众科普 · 语言 zh-CN · 6 个镜头 · 总时长 1:06.8</div></div>
+  <div class="meta">调色板 midnight <span class="sw" style="background:#070e1a" title="bg"></span><span class="sw" style="background:#e8eef7" title="ink"></span><span class="sw" style="background:#e8eef7" title="primary"></span><span class="sw" style="background:#7da2ff" title="secondary"></span><span class="sw" style="background:#4fd1c5" title="accent"></span><span class="sw" style="background:#16263d" title="ground"></span></div></header><div class="grid">
+  <div class="card"><img src="scene-01.png"><div class="body"><div class="row"><span><span class="no">S01</span></span><span>0:00.0 – 0:07.7 · 7.7s</span></div>
+  <div class="cap">这是一架 78 吨重的客机。大约 40 秒后，它就会离开地面。</div>
+  <div class="nar">🎙 这是一架七十八吨重的客机。大约四十秒后，它就会离开地面。</div>
+  <div class="acts">🎥 plane<br>build → runway<br>build → plane<br>trace → plane.gear</div></div></div><div class="card"><img src="scene-02.png"><div class="body"><div class="row"><span><span class="no">S02</span></span><span>0:07.7 – 0:22.9 · 15.2s</span></div>
+  <div class="cap">第一招：推力。两台涡扇发动机吸进空气，再从尾部高速喷出。根据牛顿第三定律，飞机被反推向前，速度冲到约 270 公里每小时。</div>
+  <div class="nar">🎙 第一招：推力。两台涡扇发动机吸进空气，再从尾部高速喷出。根据牛顿第三定律，飞机被反推向前，速度冲到每小时约二百七十公里。</div>
+  <div class="acts">🎥 follow plane<br>build → plane.fan<br>annotate → plane 「涡扇发动机」<br>stream → plane<br>emit → plane<br>annotate → plane 「空气向后喷」<br>force → plane<br>move → plane<br>readout → plane 「速度 {v} km/h」</div></div></div><div class="card"><img src="scene-03.png"><div class="body"><div class="row"><span><span class="no">S03</span></span><span>0:22.9 – 0:38.5 · 15.6s</span></div>
+  <div class="cap">第二招：升力。机翼上表面弯曲，还略微向上倾斜。上方气流更快、压强更低，下方的空气被机翼往下推。上下的压力差，把机翼托了起来。</div>
+  
+  <div class="acts">🎥 follow plane<br>move → plane<br>readout → plane 「速度 {v} km/h」<br>highlight → plane<br>stream → plane<br>stream → plane<br>annotate → plane 「上方：流速快、压强低」<br>annotate → plane 「下方：空气被往下推」<br>force → plane</div></div></div><div class="card"><img src="scene-04.png"><div class="body"><div class="row"><span><span class="no">S04</span></span><span>0:38.5 – 0:48.8 · 10.3s</span></div>
+  <div class="cap">到达抬轮速度，飞行员向后拉杆。机头抬起约 10 度，襟翼提供额外升力，轮子离开跑道。</div>
+  <div class="nar">🎙 到达抬轮速度，飞行员向后拉杆。机头抬起约十度，襟翼提供额外升力，轮子离开跑道。</div>
+  <div class="acts">🎥 follow plane<br>move → plane<br>build → plane.flaps<br>highlight → plane.flaps<br>annotate → plane 「襟翼放出」<br>move → plane<br>readout → plane 「俯仰 {v}°」<br>move → plane<br>hide → plane.gear<br>annotate → plane 「收起落架」</div></div></div><div class="card"><img src="scene-05.png"><div class="body"><div class="row"><span><span class="no">S05</span></span><span>0:48.8 – 0:59.8 · 11.0s</span></div>
+  <div class="cap">代价是：升力和速度的平方成正比。速度减半，升力只剩四分之一。所以跑道动辄两三公里长。</div>
+  
+  <div class="acts">🎥 follow plane<br>move → plane<br>readout → plane 「高度 {v} m」<br>chart → —<br>annotate → plane 「升力 ∝ 速度²」</div></div></div><div class="card"><img src="scene-06.png"><div class="body"><div class="row"><span><span class="no">S06</span></span><span>0:59.8 – 1:06.8 · 7.0s</span></div>
+  <div class="cap">推力让它前进，机翼让它飞起。这就是飞机起飞的原理。</div>
+  
+  <div class="acts">🎥 follow plane<br>move → plane</div></div></div>
+  </div></div></body></html>
