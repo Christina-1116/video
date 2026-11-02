@@ -9,7 +9,7 @@ stays in sync whatever voice reads it.
 |---|---|---|
 | `title`, `topic`, `audience` | — | poster, page title, transcript header |
 | `language` | `en-US` | voice selection, caption rules, `<html lang>` |
-| `style` | `papercraft` | `collage` · `papercraft` · `papermap` · `nightpaper` |
+| `style` | `papercraft` | `collage` · `papercraft` · `papermap` · `nightpaper` · `blueprint` |
 | `styleOverrides` | — | any style key: `titleVariant` (`strip`/`card`/`plain`), `kickerVariant` (`chip`/`plain`), `shadow` (`hard`/`soft`), `torn`, `grain`, `bgVariant` (`paper`/`board`), `decor` (`scraps`/`map`/`collage`/none), `captionVariant` (`chip`/`block`), `labelVariant` (`card`/`chip`), `fonts`, `googleFonts` |
 | `palette` | style's | override colours: `bg paper card ink muted accent accent2 accent3 red blue green caption captionText shadow` (+ `land1 land2 tree trunk water bank sand scrap1-3`) |
 | `format` | `16:9` | `16:9` 1600×900 · `9:16` 900×1600 · `1:1` 1200×1200 · `4:5` 1080×1350 (author coordinates in this space) |

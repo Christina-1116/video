@@ -17,7 +17,7 @@ TYPES = {"rect", "circle", "blob", "poly", "path", "curve", "arrow", "line", "ba
          "card", "icon", "image", "counter", "chart", "scatter", "seq", "waves", "group"}
 FX_IN = {"fade", "pop", "rise", "drop", "slide-left", "slide-right", "slide-up", "stamp", "unfold", "draw", "grow", "none"}
 FX_OUT = {"fade", "sink", "lift", "pop", "slide-left", "slide-right", "none"}
-STYLES = {"collage", "papercraft", "papermap", "nightpaper"}
+STYLES = {"collage", "papercraft", "papermap", "nightpaper", "blueprint"}
 TIME_RE = re.compile(r"^(?:([\w-]+):)?(start|end|c(\d+)(?:\.(start|end))?)\s*([+-]\s*\d*\.?\d+)?$")
 
 

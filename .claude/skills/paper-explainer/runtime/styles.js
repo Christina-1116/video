@@ -66,6 +66,20 @@
       bgVariant: 'board', decor: 'map', captionVariant: 'chip', labelVariant: 'card',
       music: { mood: 'warm' }
     },
+    // Deep-blue engineering paper (aviation, engineering, technical topics)
+    blueprint: {
+      label: 'Blueprint paper',
+      palette: {
+        bg: '#1f3b5c', paper: '#e8eef5', card: '#f4f7fb', ink: '#0f2236', muted: '#a9bccf',
+        accent: '#ffd166', accent2: '#7fb3e0', accent3: '#9fd3c7', red: '#ff7a59', blue: '#7fb3e0', green: '#9fd3c7',
+        caption: '#0b1a2b', captionText: '#ffffff', shadow: '#081422', scrap1: '#2c4f75', scrap2: '#2a4866', scrap3: '#365c84'
+      },
+      fonts: { title: '"Libre Baskerville", Georgia, serif', body: '"Inter", Arial, sans-serif', mono: '"JetBrains Mono", monospace', label: '"Libre Baskerville", Georgia, serif' },
+      googleFonts: 'family=Libre+Baskerville:wght@400;700&family=Inter:wght@400;600;700',
+      titleVariant: 'card', kickerVariant: 'plain', shadow: 'soft', torn: 1.6, grain: 0.3,
+      bgVariant: 'paper', decor: 'scraps', captionVariant: 'chip', labelVariant: 'card',
+      music: { mood: 'calm' }
+    },
     // Extra preset — dark ink & neon paper (shows how a new style is composed from the same parts)
     nightpaper: {
       label: 'Night paper',

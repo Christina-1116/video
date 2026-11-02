@@ -31,7 +31,7 @@ Paths below use `$SKILL` = this skill's folder. Requires Python 3 and, for previ
 | topic | the user's words |
 | audience | curious general audience, age 12+ (adjust vocabulary, number of steps, examples) |
 | language | English narration (`en-US`); subtitles = narration text. Bilingual subtitles: add `tr: {zh: …}` to every cue (shown as two lines; viewers switch Both / EN / 中文 / Off) |
-| style | history/evolution → `collage`; maths/logic/proof → `papercraft`; nature/geography/process → `papermap`; product/tech at night → `nightpaper`; or compose a new one (`styleOverrides` + `palette`) |
+| style | history/evolution → `collage`; maths/logic/proof → `papercraft`; nature/geography/process → `papermap`; product/tech at night → `nightpaper`; engineering/aviation → `blueprint`; or compose a new one (`styleOverrides` + `palette`) |
 | tone | sets music mood + pace: calm/curious → `calm`, warm/story → `warm`, serious/history → `documentary`, kids/playful → `playful` or `upbeat` |
 | format | 16:9; 9:16 for Shorts/Reels (stack content vertically, titles `top`) |
 | length | 35–60 s (6–9 scenes, 1–3 cues each) |
