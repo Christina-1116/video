@@ -65,7 +65,8 @@ story = {
     "cuePause": 0.6,
     "endTitle": "Engines make speed. Wings turn speed into lift.",
     "credit": "by Dong · Paper Explainer · English narration · EN/中文 subtitles",
-    "slug": "how-a-plane-takes-off"
+    "slug": "how-a-plane-takes-off",
+    "watermark": "by Dong"
   },
   "scenes": [
     {"id": "hook", "title": "How does a 78-ton plane take off?",

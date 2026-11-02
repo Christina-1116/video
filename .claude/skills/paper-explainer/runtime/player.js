@@ -204,7 +204,7 @@
       <div class="pe-viewport"><div class="pe-stage" style="width:${W}px;height:${H}px">
         <svg class="pe-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true"></svg>
         <div class="pe-grain"></div><div class="pe-titles"></div><div class="pe-timeline-host"></div>
-        <div class="pe-caption" aria-hidden="true"></div>
+        <div class="pe-caption" aria-hidden="true"></div>${meta.watermark ? `<div class="pe-wm" aria-hidden="true">${esc(meta.watermark)}</div>` : ''}
       </div></div>
       <div class="pe-sr" aria-live="polite" data-live></div>
       <div class="pe-overlay" data-poster><div class="o-title"></div><button class="pe-big" data-bigplay aria-label="Play video"><svg viewBox="0 0 24 24"><path d="M7 4.5l12 7.5-12 7.5z"/></svg></button><div class="o-meta"></div></div>

@@ -19,6 +19,7 @@ stays in sync whatever voice reads it.
 | `ttsVoice` | `af_heart` | voice for `scripts/tts.py` (Kokoro: `af_heart` `am_michael` `bf_emma`…; edge: `en-US-AndrewNeural`) |
 | `subtitleDefault` | `both` when translations exist | starting subtitle mode: `both`, `en`, `zh`, … or `off` |
 | `cuePause` | 0.4 | silence after each sentence |
+| `watermark` | — | bottom-right text, e.g. `"by Dong"` |
 | `posterAt`, `endTitle`, `credit`, `pageBg`, `slug` | — | poster frame time, end-screen line, footer text, page colour, caption file name |
 
 ## scenes

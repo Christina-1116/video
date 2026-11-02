@@ -109,3 +109,5 @@
 .pe-player:focus-visible { outline: 3px solid var(--ui-accent); outline-offset: -3px; }
 @media (max-width: 560px) { .pe-vol, .pe-hide-sm { display: none; } .pe-btn { width: 34px; height: 34px; } }
 @media (prefers-reduced-motion: reduce) { .pe-ui, .pe-caption { transition: none; } }
+.pe-wm { position: absolute; right: 34px; bottom: 22px; font: italic 600 22px var(--f-body); letter-spacing: .18em; color: var(--ink); opacity: .55; pointer-events: none; }
+.pe-stage.dark .pe-wm { color: var(--card); }
