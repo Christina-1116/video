@@ -10,7 +10,7 @@ def plane(pid, x, y, at, until=None, keys=None, gear_out=None, fx="drop"):
         {"type": "curve", "from": [180, 22], "to": [180, 48], "color": "ink", "width": 4, **gear_o},
         {"type": "circle", "x": 180, "y": 56, "r": 9, "fill": "ink", "shadow": 0, **gear_o},
         {"type": "poly", "points": [[-245, -10], [-212, -122], [-182, -122], [-160, -26]], "fill": "red"},
-        {"type": "poly", "smooth": True, "points": [[-262, -6], [-205, -30], [180, -34], [236, -24], [264, -2], [250, 16], [200, 25], [-200, 25], [-252, 10]], "fill": "paper"},
+        {"type": "poly", "smooth": True, "points": [[-262, -6], [-205, -30], [180, -34], [236, -24], [264, -2], [250, 16], [200, 25], [-200, 25], [-252, 10]], "fill": "card"},
         {"type": "poly", "points": [[-236, -2], [-296, -18], [-280, -26], [-205, -14]], "fill": "red", "shadow": 0.4},
         {"type": "poly", "points": [[208, -22], [234, -18], [243, -7], [214, -9]], "fill": "blue", "shadow": 0},
         {"type": "seq", "from": [-170, -9], "to": [160, -9], "pattern": "ooooooooooooooo", "size": 8, "color": "blue"},
