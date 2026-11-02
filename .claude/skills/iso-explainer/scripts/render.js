@@ -25,8 +25,9 @@ try { ({ chromium } = require('playwright')); } catch (e) {
 }
 
 const ENGINE = path.resolve(__dirname, '..', 'engine', 'index.html');
-const NODE_TYPES = ['box', 'block', 'stack', 'server', 'database', 'cylinder', 'screen', 'doc', 'document', 'person', 'cloud', 'chip', 'ai', 'model', 'gate', 'platform'];
-const ACTIONS = ['trace', 'assemble', 'build', 'link', 'flow', 'highlight', 'callout', 'label', 'hide', 'show'];
+const NODE_TYPES = ['object', 'box', 'block', 'stack', 'server', 'database', 'cylinder', 'screen', 'doc', 'document', 'person', 'cloud', 'chip', 'ai', 'model', 'gate', 'platform'];
+const ACTIONS = ['trace', 'assemble', 'build', 'link', 'flow', 'highlight', 'callout', 'label', 'hide', 'show', 'move', 'emit', 'stream', 'force', 'annotate', 'readout', 'chart'];
+const NO_TARGET = ['chart', 'readout'];
 
 function parseArgs(argv) {
   const out = { _: [] };
@@ -88,8 +89,10 @@ function validate(sb) {
     if (!n.id) errs.push('node without id');
     if (ids.has(n.id)) errs.push(`duplicate id: ${n.id}`);
     ids.add(n.id);
+    if (n.type === 'object' && !(n.parts || []).length) errs.push(`object ${n.id}: needs parts[]`);
+    for (const p of n.parts || []) if (p.shape && !['box', 'cyl', 'fan', 'wheel', 'extrude', 'line', 'quad'].includes(p.shape)) errs.push(`object ${n.id}: unknown part shape "${p.shape}"`);
     if (n.type && !NODE_TYPES.includes(n.type)) errs.push(`node ${n.id}: unknown type "${n.type}" (use ${NODE_TYPES.join('/')})`);
-    if (!Array.isArray(n.pos)) errs.push(`node ${n.id}: pos [x,y,z] required`);
+    if (!Array.isArray(n.pos) && n.type !== 'object') errs.push(`node ${n.id}: pos [x,y,z] required`);
   }
   for (const l of sb.links || []) {
     if (ids.has(l.id)) errs.push(`duplicate id: ${l.id}`);
@@ -103,10 +106,16 @@ function validate(sb) {
     if (!(sc.duration > 0)) errs.push(`scene ${sc.id}: duration must be > 0`);
     for (const a of sc.actions || []) {
       if (!ACTIONS.includes(a.do)) errs.push(`scene ${sc.id}: unknown action "${a.do}"`);
+      if (a.target == null && NO_TARGET.includes(a.do)) continue;
       const ts = Array.isArray(a.target) ? a.target : [a.target];
       for (const t of ts) {
-        if (!ids.has(t)) errs.push(`scene ${sc.id}: action ${a.do} targets unknown id "${t}"`);
-        touched.add(t);
+        const [base, grp] = String(t).split('.');
+        const node = (sb.nodes || []).find((n) => n.id === base);
+        if (!ids.has(base)) errs.push(`scene ${sc.id}: action ${a.do} targets unknown id "${t}"`);
+        else if (grp && !(node && (node.parts || []).some((p) => p.group === grp))) errs.push(`scene ${sc.id}: "${t}" — node ${base} has no part with group "${grp}"`);
+        if (['move', 'emit', 'stream', 'force'].includes(a.do) && node && node.type !== 'object') errs.push(`scene ${sc.id}: ${a.do} needs an "object" node, got ${node.type || 'box'} "${base}"`);
+        if (a.do === 'annotate' && typeof a.point === 'string' && node && !(node.anchors && node.anchors[a.point])) errs.push(`scene ${sc.id}: anchor "${a.point}" not defined on ${base}`);
+        touched.add(base);
         if (a.do === 'flow' && !(sb.links || []).some((l) => l.id === t)) errs.push(`scene ${sc.id}: flow must target a link, got "${t}"`);
       }
       if ((a.at || 0) > sc.duration) warns.push(`scene ${sc.id}: action ${a.do}@${a.at}s starts after the scene ends (${sc.duration}s)`);
@@ -153,8 +162,8 @@ function keyTime(sc, scRaw) {
   let last = 0;
   for (const a of scRaw.actions || []) {
     const ts = Array.isArray(a.target) ? a.target.length : 1;
-    const d = a.dur != null ? a.dur : ({ trace: 1.2, assemble: 1, build: 1.8, link: 0.9, flow: 1.6, highlight: 1, callout: 1, label: 0.5 }[a.do] || 1);
-    last = Math.max(last, (a.at || 0) + (a.stagger || 0) * (ts - 1) + Math.min(d, ['flow', 'callout', 'highlight'].includes(a.do) ? 1.4 : d));
+    const d = a.dur != null ? a.dur : ({ move: 1.5, annotate: 1.4, chart: 3, readout: 1.4, emit: 1.4, stream: 1.4, force: 1.4, trace: 1.2, assemble: 1, build: 1.8, link: 0.9, flow: 1.6, highlight: 1, callout: 1, label: 0.5 }[a.do] || 1);
+    last = Math.max(last, (a.at || 0) + (a.stagger || 0) * (ts - 1) + Math.min(d, ['flow', 'callout', 'highlight', 'emit', 'stream', 'force', 'annotate', 'readout', 'chart'].includes(a.do) ? Math.min(d || 1.4, a.count || a.draw || 1.4) + 0.4 : d));
   }
   if (scRaw.overlay) last = Math.max(last, 1.2);
   return Math.min(sc.end - 0.05, sc.start + Math.max(last + 0.25, sc.duration * 0.55));
@@ -174,7 +183,7 @@ async function cmdPreview(file, args) {
     const t = keyTime(sc, raw);
     const name = `scene-${String(i + 1).padStart(2, '0')}.png`;
     fs.writeFileSync(path.join(outDir, name), await shot(page, stage, t));
-    const acts = (raw.actions || []).map((a) => `${a.do} → ${Array.isArray(a.target) ? a.target.join(', ') : a.target}`);
+    const acts = (raw.actions || []).map((a) => `${a.do} → ${Array.isArray(a.target) ? a.target.join(', ') : (a.target == null ? '—' : a.target)}${a.text ? ' 「' + String(a.text).split('\n')[0] + '」' : ''}`);
     cards.push({ i, name, sc, raw, t, acts });
     process.stdout.write(`\rkeyframes ${i + 1}/${info.scenes.length}`);
   }
@@ -203,7 +212,7 @@ async function cmdPreview(file, args) {
   ${cards.map((c) => `<div class="card"><img src="${c.name}"><div class="body"><div class="row"><span><span class="no">S${String(c.i + 1).padStart(2, '0')}</span>${c.raw.chapter ? `<span class="ch">${esc(c.raw.chapter)}</span>` : ''}</span><span>${fmt(c.sc.start)} – ${fmt(c.sc.end)} · ${c.sc.duration.toFixed(1)}s</span></div>
   <div class="cap">${esc(c.raw.caption || c.raw.narration || (c.raw.overlay ? c.raw.overlay.title : ''))}</div>
   ${c.raw.narration && c.raw.caption && c.raw.narration !== c.raw.caption ? `<div class="nar">🎙 ${esc(c.raw.narration)}</div>` : ''}
-  <div class="acts">${c.raw.camera ? '🎥 ' + esc(c.raw.camera.focus === 'all' || !c.raw.camera.focus ? 'all' : c.raw.camera.focus.join(', ')) + (c.raw.dim ? ' · dim' : '') + '<br>' : ''}${c.acts.map(esc).join('<br>')}</div></div></div>`).join('')}
+  <div class="acts">${c.raw.camera ? '🎥 ' + esc(c.raw.camera.follow ? 'follow ' + c.raw.camera.follow : (c.raw.camera.focus === 'all' || !c.raw.camera.focus ? 'all' : c.raw.camera.focus.join(', '))) + (c.raw.dim ? ' · dim' : '') + '<br>' : ''}${c.acts.map(esc).join('<br>')}</div></div></div>`).join('')}
   </div></div></body></html>`;
   fs.writeFileSync(path.join(outDir, 'storyboard.html'), html);
   const sheet = await browser.newPage({ viewport: { width: 1960, height: 1000 } });

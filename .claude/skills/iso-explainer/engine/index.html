@@ -6,6 +6,7 @@
 <style>
   :root { --W: 1920px; --H: 1080px; --bg: #0d1b2a; --bg2: #13263b; --ink: #e6f1ff; --text: #e6f1ff;
     --capbg: rgba(0,0,0,.75); --captext: #fff; --accent: #ffbe0b; --labelbg: #0d1b2a; --capsize: 40px;
+    --mono: "JetBrains Mono", "SF Mono", Menlo, "DejaVu Sans Mono", Consolas, monospace;
     --font: "Inter", "Noto Sans SC", "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", "WenQuanYi Zen Hei", "Helvetica Neue", Arial, sans-serif; }
   html, body { margin: 0; padding: 0; background: #000; }
   #stage { position: relative; width: var(--W); height: var(--H); overflow: hidden;
@@ -30,6 +31,30 @@
   .titlecard .subtitle { margin-top: 22px; font-size: 36px; font-weight: 500; opacity: .85; max-width: 70%; }
   #progress { position: absolute; left: 0; bottom: 0; height: 6px; background: var(--accent); width: 0; }
   #brand { position: absolute; right: 48px; top: 52px; font-size: 22px; font-weight: 700; color: var(--text); opacity: .6; }
+  #brand.brandblock { left: 96px; right: auto; top: 54px; opacity: 1; display: flex; align-items: center; gap: 22px; }
+  .b-mark { font-size: 46px; line-height: 1; color: var(--markc); font-weight: 900; }
+  .b-text { display: flex; flex-direction: column; gap: 6px; }
+  .b-name { font-size: 22px; font-weight: 700; letter-spacing: .26em; color: var(--text); }
+  .b-tag { font-size: 16px; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
+  #header { position: absolute; left: 96px; top: 148px; opacity: 0; max-width: 46%; }
+  .h-kicker { font-family: var(--mono); font-size: 19px; letter-spacing: .08em; color: var(--teal); text-transform: uppercase; margin-bottom: 14px; }
+  .h-title { font-size: 50px; font-weight: 800; color: var(--text); line-height: 1.12; letter-spacing: -.01em; }
+  .h-sub { font-size: 22px; color: var(--muted); margin-top: 12px; }
+  .h-tag { display: inline-block; margin-top: 20px; padding: 7px 18px; border: 1.5px solid var(--tagc); color: var(--tagc); border-radius: 999px; font-size: 20px; font-weight: 600; }
+  #fact { position: absolute; right: 120px; top: 168px; width: 380px; opacity: 0; }
+  .f-kicker { font-family: var(--mono); font-size: 18px; color: var(--teal); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 12px; }
+  .f-text { font-size: 26px; color: var(--text); line-height: 1.38; font-weight: 500; }
+  #progresswrap { position: absolute; left: 96px; right: 96px; bottom: 24px; height: 12px; }
+  #progresswrap .track { position: absolute; left: 0; right: 0; top: 5px; height: 2px; background: var(--muted); opacity: .25; }
+  #progress { position: absolute; left: 0; top: 5px; bottom: auto !important; height: 2px; background: var(--teal); }
+  #ticks i { position: absolute; top: 0; width: 2px; height: 12px; background: var(--muted); opacity: .45; }
+  body[data-style="wire"] #caption { font-size: calc(var(--capsize) * .82); font-weight: 500; padding: .42em .95em; border-radius: .3em; bottom: 78px; box-shadow: none; }
+  body[data-style="wire"] #chapter { display: none; }
+  .titlecard .mark { font-size: 96px; color: var(--markc); font-weight: 900; line-height: 1; margin-bottom: 18px; }
+  .titlecard .title2 { color: var(--teal); }
+  .titlecard .footer { margin-top: 44px; font-size: 20px; letter-spacing: .2em; color: var(--muted); text-transform: uppercase; }
+  .titlecard.backdrop { background: radial-gradient(ellipse at center, color-mix(in srgb, var(--bg) 85%, transparent) 0%, var(--bg) 75%); }
+  body[data-style="wire"] .titlecard .kicker { color: var(--text); letter-spacing: .32em; font-size: 26px; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -39,8 +64,10 @@
   <div id="titlecard" class="titlecard"></div>
   <div id="chapter"></div>
   <div id="brand"></div>
+  <div id="header"></div>
+  <div id="fact"></div>
   <div id="caption"></div>
-  <div id="progress"></div>
+  <div id="progresswrap"><div class="track"></div><div id="ticks"></div><div id="progress"></div></div>
 </div>
 <script src="palettes.js"></script>
 <script src="engine.js"></script>

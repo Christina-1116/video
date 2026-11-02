@@ -1,0 +1,1088 @@
+{
+ "meta": {
+  "title": "四旋翼无人机是怎么飞起来的",
+  "topic": "四旋翼无人机：升力、姿态、转向与续航",
+  "audience": "对科技感兴趣的大众",
+  "language": "zh-CN",
+  "palette": "midnight",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "brand": {
+   "mark": "◆",
+   "name": "QUADCOPTER",
+   "tagline": "它如何飞 — 图解"
+  }
+ },
+ "nodes": [
+  {
+   "id": "drone",
+   "type": "object",
+   "pos": [
+    0,
+    0,
+    0
+   ],
+   "parts": [
+    {
+     "shape": "extrude",
+     "plane": "xz",
+     "span": [
+      -0.75,
+      0.75
+     ],
+     "profile": [
+      [
+       -1.4,
+       0.55
+      ],
+      [
+       1.1,
+       0.55
+      ],
+      [
+       1.5,
+       0.85
+      ],
+      [
+       1.1,
+       1.2
+      ],
+      [
+       -1.2,
+       1.25
+      ],
+      [
+       -1.4,
+       1.0
+      ]
+     ],
+     "glassFaces": [
+      2,
+      3
+     ]
+    },
+    {
+     "shape": "extrude",
+     "plane": "xy",
+     "span": [
+      0.9,
+      1.08
+     ],
+     "profile": [
+      [
+       0.106,
+       0.106
+      ],
+      [
+       2.306,
+       -2.094
+      ],
+      [
+       2.094,
+       -2.306
+      ],
+      [
+       -0.106,
+       -0.106
+      ]
+     ]
+    },
+    {
+     "shape": "extrude",
+     "plane": "xy",
+     "span": [
+      0.9,
+      1.08
+     ],
+     "profile": [
+      [
+       -0.106,
+       0.106
+      ],
+      [
+       2.094,
+       2.306
+      ],
+      [
+       2.306,
+       2.094
+      ],
+      [
+       0.106,
+       -0.106
+      ]
+     ]
+    },
+    {
+     "shape": "extrude",
+     "plane": "xy",
+     "span": [
+      0.9,
+      1.08
+     ],
+     "profile": [
+      [
+       0.106,
+       -0.106
+      ],
+      [
+       -2.094,
+       -2.306
+      ],
+      [
+       -2.306,
+       -2.094
+      ],
+      [
+       -0.106,
+       0.106
+      ]
+     ]
+    },
+    {
+     "shape": "extrude",
+     "plane": "xy",
+     "span": [
+      0.9,
+      1.08
+     ],
+     "profile": [
+      [
+       -0.106,
+       -0.106
+      ],
+      [
+       -2.306,
+       2.094
+      ],
+      [
+       -2.094,
+       2.306
+      ],
+      [
+       0.106,
+       0.106
+      ]
+     ]
+    },
+    {
+     "shape": "cyl",
+     "at": [
+      2.2,
+      -2.2,
+      1.08
+     ],
+     "r": 0.3,
+     "h": 0.38,
+     "segments": 20
+    },
+    {
+     "shape": "cyl",
+     "at": [
+      2.2,
+      2.2,
+      1.08
+     ],
+     "r": 0.3,
+     "h": 0.38,
+     "segments": 20
+    },
+    {
+     "shape": "cyl",
+     "at": [
+      -2.2,
+      -2.2,
+      1.08
+     ],
+     "r": 0.3,
+     "h": 0.38,
+     "segments": 20
+    },
+    {
+     "shape": "cyl",
+     "at": [
+      -2.2,
+      2.2,
+      1.08
+     ],
+     "r": 0.3,
+     "h": 0.38,
+     "segments": 20
+    },
+    {
+     "shape": "fan",
+     "group": "cw",
+     "at": [
+      2.2,
+      -2.2,
+      1.5
+     ],
+     "r": 1.15,
+     "h": 0.03,
+     "blades": 2,
+     "spin": 0.9,
+     "style": "glass",
+     "opacity": 0.12
+    },
+    {
+     "shape": "fan",
+     "group": "ccw",
+     "at": [
+      2.2,
+      2.2,
+      1.5
+     ],
+     "r": 1.15,
+     "h": 0.03,
+     "blades": 2,
+     "spin": -0.9,
+     "style": "glass",
+     "opacity": 0.12
+    },
+    {
+     "shape": "fan",
+     "group": "ccw",
+     "at": [
+      -2.2,
+      -2.2,
+      1.5
+     ],
+     "r": 1.15,
+     "h": 0.03,
+     "blades": 2,
+     "spin": -0.9,
+     "style": "glass",
+     "opacity": 0.12
+    },
+    {
+     "shape": "fan",
+     "group": "cw",
+     "at": [
+      -2.2,
+      2.2,
+      1.5
+     ],
+     "r": 1.15,
+     "h": 0.03,
+     "blades": 2,
+     "spin": 0.9,
+     "style": "glass",
+     "opacity": 0.12
+    },
+    {
+     "shape": "box",
+     "group": "battery",
+     "at": [
+      -1.05,
+      -0.45,
+      0.62
+     ],
+     "size": [
+      1.6,
+      0.9,
+      0.42
+     ],
+     "style": "hatch",
+     "color": "teal"
+    },
+    {
+     "shape": "box",
+     "group": "fc",
+     "at": [
+      0.55,
+      -0.32,
+      0.62
+     ],
+     "size": [
+      0.5,
+      0.64,
+      0.16
+     ],
+     "style": "hatch",
+     "color": "orange"
+    },
+    {
+     "shape": "box",
+     "at": [
+      0.85,
+      -0.25,
+      0.12
+     ],
+     "size": [
+      0.45,
+      0.5,
+      0.36
+     ]
+    },
+    {
+     "shape": "line",
+     "points": [
+      [
+       1.07,
+       0,
+       0.48
+      ],
+      [
+       1.07,
+       0,
+       0.55
+      ]
+     ]
+    },
+    {
+     "shape": "line",
+     "points": [
+      [
+       -0.5,
+       -0.6649999999999999,
+       0.55
+      ],
+      [
+       -0.7,
+       -0.95,
+       0.0
+      ]
+     ]
+    },
+    {
+     "shape": "line",
+     "points": [
+      [
+       0.6,
+       -0.6649999999999999,
+       0.55
+      ],
+      [
+       0.8,
+       -0.95,
+       0.0
+      ]
+     ]
+    },
+    {
+     "shape": "line",
+     "points": [
+      [
+       -1.3,
+       -0.95,
+       0.0
+      ],
+      [
+       1.4,
+       -0.95,
+       0.0
+      ]
+     ]
+    },
+    {
+     "shape": "line",
+     "points": [
+      [
+       -0.5,
+       0.6649999999999999,
+       0.55
+      ],
+      [
+       -0.7,
+       0.95,
+       0.0
+      ]
+     ]
+    },
+    {
+     "shape": "line",
+     "points": [
+      [
+       0.6,
+       0.6649999999999999,
+       0.55
+      ],
+      [
+       0.8,
+       0.95,
+       0.0
+      ]
+     ]
+    },
+    {
+     "shape": "line",
+     "points": [
+      [
+       -1.3,
+       0.95,
+       0.0
+      ],
+      [
+       1.4,
+       0.95,
+       0.0
+      ]
+     ]
+    }
+   ],
+   "anchors": {
+    "fl": [
+     2.2,
+     -2.2,
+     1.5
+    ],
+    "fr": [
+     2.2,
+     2.2,
+     1.5
+    ],
+    "rl": [
+     -2.2,
+     -2.2,
+     1.5
+    ],
+    "rr": [
+     -2.2,
+     2.2,
+     1.5
+    ],
+    "battery": [
+     -0.25,
+     0,
+     0.84
+    ],
+    "fc": [
+     0.8,
+     0,
+     0.78
+    ],
+    "nose": [
+     1.5,
+     0,
+     0.85
+    ],
+    "body": [
+     0,
+     0,
+     1.0
+    ]
+   }
+  }
+ ],
+ "scenes": [
+  {
+   "id": "intro",
+   "duration": 7,
+   "header": {
+    "kicker": "四旋翼 · 原理图解",
+    "title": "没有机翼，照样能飞。",
+    "subtitle": "四个螺旋桨，三条物理规律",
+    "tag": "示意图 · 非真实比例"
+   },
+   "camera": {
+    "focus": [
+     "drone"
+    ],
+    "pad": 1.55,
+    "drift": 0.06
+   },
+   "caption": "这是一架四旋翼无人机。它没有舵面，全靠四个螺旋桨的转速差来飞行。",
+   "actions": [
+    {
+     "do": "build",
+     "target": "drone",
+     "at": 0.3,
+     "dur": 4.2
+    }
+   ]
+  },
+  {
+   "id": "lift",
+   "duration": 12,
+   "header": {
+    "kicker": "01 · 升力",
+    "title": "第一招：把空气往下推",
+    "subtitle": "螺旋桨加速 + 向下的气流"
+   },
+   "camera": {
+    "focus": [
+     "drone"
+    ],
+    "pad": 1.75,
+    "fitAt": 4
+   },
+   "caption": "螺旋桨把空气往下推，空气就把机身往上推。四股升力加起来大过重力，它就离地了。",
+   "actions": [
+    {
+     "do": "highlight",
+     "target": [
+      "drone.cw",
+      "drone.ccw"
+     ],
+     "at": 0.3,
+     "dur": 2.2
+    },
+    {
+     "do": "annotate",
+     "target": "drone",
+     "point": "fr",
+     "text": "螺旋桨高速旋转",
+     "sub": "每秒上百转",
+     "dx": 240,
+     "dy": -110,
+     "at": 0.6,
+     "dur": 4.2
+    },
+    {
+     "do": "emit",
+     "target": "drone",
+     "from": [
+      [
+       2.2,
+       -2.2,
+       1.4
+      ],
+      [
+       2.2,
+       2.2,
+       1.4
+      ],
+      [
+       -2.2,
+       -2.2,
+       1.4
+      ],
+      [
+       -2.2,
+       2.2,
+       1.4
+      ]
+     ],
+     "dir": [
+      0,
+      0,
+      -1
+     ],
+     "spread": 14,
+     "speed": 3.2,
+     "rate": 18,
+     "life": 1.1,
+     "color": "teal",
+     "size": 2.6,
+     "at": 1.2
+    },
+    {
+     "do": "force",
+     "target": "drone",
+     "points": [
+      [
+       2.2,
+       -2.2,
+       3.3
+      ],
+      [
+       2.2,
+       2.2,
+       3.3
+      ],
+      [
+       -2.2,
+       -2.2,
+       3.3
+      ],
+      [
+       -2.2,
+       2.2,
+       3.3
+      ]
+     ],
+     "dir": [
+      0,
+      0,
+      1
+     ],
+     "length": 1.7,
+     "color": "orange",
+     "at": 3.4
+    },
+    {
+     "do": "annotate",
+     "target": "drone",
+     "point": [
+      2.2,
+      2.2,
+      3.3
+     ],
+     "text": "空气反推机身",
+     "sub": "四股升力向上",
+     "color": "orange",
+     "dx": 230,
+     "dy": -40,
+     "at": 4.0
+    },
+    {
+     "do": "move",
+     "target": "drone",
+     "to": [
+      0,
+      0,
+      2.6
+     ],
+     "at": 5.4,
+     "dur": 4.2,
+     "ease": "inOut"
+    },
+    {
+     "do": "readout",
+     "target": "drone",
+     "point": "body",
+     "text": "高度 {v} m",
+     "from": 0,
+     "to": 3.0,
+     "decimals": 1,
+     "dx": -330,
+     "dy": 40,
+     "at": 5.4,
+     "count": 4.2
+    }
+   ]
+  },
+  {
+   "id": "pitch",
+   "duration": 12,
+   "header": {
+    "kicker": "02 · 姿态",
+    "title": "第二招：用转速差倾斜机身",
+    "subtitle": "前慢后快 → 机头下压"
+   },
+   "camera": {
+    "follow": "drone",
+    "pad": 1.6
+   },
+   "fact": {
+    "kicker": "力的分解",
+    "text": "推力一倾斜，就分出一部分向前的力。",
+    "at": 5.5
+   },
+   "caption": "让后面两个螺旋桨转得更快，机头就会微微下压。推力随之倾斜，分出一部分向前，无人机开始前进。",
+   "actions": [
+    {
+     "do": "emit",
+     "target": "drone",
+     "from": [
+      [
+       -2.2,
+       -2.2,
+       1.4
+      ],
+      [
+       -2.2,
+       2.2,
+       1.4
+      ]
+     ],
+     "dir": [
+      0,
+      0,
+      -1
+     ],
+     "spread": 14,
+     "speed": 4.2,
+     "rate": 34,
+     "life": 1.1,
+     "color": "orange",
+     "size": 2.6,
+     "at": 0.2
+    },
+    {
+     "do": "emit",
+     "target": "drone",
+     "from": [
+      [
+       2.2,
+       -2.2,
+       1.4
+      ],
+      [
+       2.2,
+       2.2,
+       1.4
+      ]
+     ],
+     "dir": [
+      0,
+      0,
+      -1
+     ],
+     "spread": 14,
+     "speed": 2.4,
+     "rate": 10,
+     "life": 1.0,
+     "color": "teal",
+     "size": 2.4,
+     "at": 0.2
+    },
+    {
+     "do": "annotate",
+     "target": "drone",
+     "point": "rr",
+     "text": "后侧加速",
+     "sub": "推力更大",
+     "color": "orange",
+     "dx": -230,
+     "dy": 60,
+     "at": 0.6,
+     "dur": 4.6
+    },
+    {
+     "do": "annotate",
+     "target": "drone",
+     "point": "fl",
+     "text": "前侧减速",
+     "sub": "推力更小",
+     "dx": 220,
+     "dy": -80,
+     "at": 1.0,
+     "dur": 4.2
+    },
+    {
+     "do": "move",
+     "target": "drone",
+     "rot": [
+      0,
+      14,
+      0
+     ],
+     "at": 1.6,
+     "dur": 2.2
+    },
+    {
+     "do": "readout",
+     "target": "drone",
+     "point": "nose",
+     "text": "俯仰 {v}°",
+     "from": 0,
+     "to": -14,
+     "dx": 180,
+     "dy": -150,
+     "at": 1.6,
+     "count": 2.2
+    },
+    {
+     "do": "move",
+     "target": "drone",
+     "by": [
+      6,
+      0,
+      0
+     ],
+     "at": 4.2,
+     "dur": 6.5,
+     "ease": "inOut"
+    },
+    {
+     "do": "force",
+     "target": "drone",
+     "points": [
+      [
+       2.6,
+       0,
+       1.0
+      ]
+     ],
+     "dir": [
+      1,
+      0,
+      0
+     ],
+     "length": 2.4,
+     "color": "teal",
+     "at": 5.0
+    },
+    {
+     "do": "move",
+     "target": "drone",
+     "rot": [
+      0,
+      0,
+      0
+     ],
+     "at": 9.6,
+     "dur": 2.0
+    }
+   ]
+  },
+  {
+   "id": "yaw",
+   "duration": 11,
+   "header": {
+    "kicker": "03 · 转向",
+    "title": "第三招：反扭矩原地转向",
+    "subtitle": "对角两组桨，转向相反"
+   },
+   "camera": {
+    "follow": "drone",
+    "pad": 1.6
+   },
+   "caption": "四个桨两两反转，扭矩正好抵消。一组加速、另一组减速，机身就会原地转过来。",
+   "actions": [
+    {
+     "do": "highlight",
+     "target": "drone.cw",
+     "at": 0.3,
+     "dur": 10,
+     "color": "teal"
+    },
+    {
+     "do": "highlight",
+     "target": "drone.ccw",
+     "at": 0.3,
+     "dur": 10,
+     "color": "orange"
+    },
+    {
+     "do": "annotate",
+     "target": "drone",
+     "point": "fl",
+     "text": "顺时针 × 2",
+     "sub": "对角一组",
+     "dx": 230,
+     "dy": -90,
+     "at": 0.6,
+     "dur": 4.4
+    },
+    {
+     "do": "annotate",
+     "target": "drone",
+     "point": "rl",
+     "text": "逆时针 × 2",
+     "sub": "另一组",
+     "color": "orange",
+     "dx": -240,
+     "dy": -60,
+     "at": 1.0,
+     "dur": 4.0
+    },
+    {
+     "do": "move",
+     "target": "drone",
+     "rot": [
+      0,
+      0,
+      90
+     ],
+     "at": 5.0,
+     "dur": 4.5
+    },
+    {
+     "do": "readout",
+     "target": "drone",
+     "point": "body",
+     "text": "偏航 {v}°",
+     "from": 0,
+     "to": 90,
+     "dx": 200,
+     "dy": -200,
+     "at": 5.0,
+     "count": 4.5
+    }
+   ]
+  },
+  {
+   "id": "battery",
+   "duration": 10,
+   "header": {
+    "kicker": "04 · 代价",
+    "title": "代价：电池撑不了太久",
+    "subtitle": "悬停的每一秒都在耗电",
+    "tag": "约 30 分钟续航",
+    "tagColor": "orange"
+   },
+   "camera": {
+    "follow": "drone",
+    "pad": 1.5,
+    "followOffset": [
+     40,
+     -10
+    ]
+   },
+   "caption": "代价是：每一秒悬停都在消耗电池，所以它一次只能飞二三十分钟。",
+   "actions": [
+    {
+     "do": "build",
+     "target": "drone.battery",
+     "at": 0.2,
+     "dur": 1.6
+    },
+    {
+     "do": "highlight",
+     "target": "drone.battery",
+     "at": 1.6,
+     "dur": 7.6,
+     "color": "teal"
+    },
+    {
+     "do": "annotate",
+     "target": "drone",
+     "point": "battery",
+     "text": "锂电池",
+     "sub": "占整机重量约三分之一",
+     "dx": -260,
+     "dy": 120,
+     "at": 1.0,
+     "dur": 4.5
+    },
+    {
+     "do": "readout",
+     "target": "drone",
+     "point": "battery",
+     "text": "电量 {v}%",
+     "from": 100,
+     "to": 18,
+     "dx": 180,
+     "dy": 110,
+     "at": 1.8,
+     "count": 6.5,
+     "ease": "linear"
+    },
+    {
+     "do": "chart",
+     "title": "电量 vs 飞行时间",
+     "xlabel": "时间 →  约 30 分钟",
+     "at": 1.2,
+     "draw": 3.5,
+     "series": [
+      {
+       "label": "剩余电量",
+       "color": "teal",
+       "points": [
+        [
+         0,
+         0.95
+        ],
+        [
+         0.2,
+         0.8
+        ],
+        [
+         0.4,
+         0.64
+        ],
+        [
+         0.6,
+         0.47
+        ],
+        [
+         0.8,
+         0.3
+        ],
+        [
+         1,
+         0.12
+        ]
+       ],
+       "labelAt": 0.12
+      },
+      {
+       "label": "功率需求",
+       "color": "orange",
+       "points": [
+        [
+         0,
+         0.3
+        ],
+        [
+         0.1,
+         0.62
+        ],
+        [
+         0.3,
+         0.58
+        ],
+        [
+         0.5,
+         0.6
+        ],
+        [
+         0.7,
+         0.57
+        ],
+        [
+         1,
+         0.6
+        ]
+       ],
+       "labelAt": 0.78
+      }
+     ]
+    },
+    {
+     "do": "move",
+     "target": "drone",
+     "by": [
+      0,
+      0,
+      -2.6
+     ],
+     "at": 6.0,
+     "dur": 3.4
+    }
+   ]
+  },
+  {
+   "id": "outro",
+   "duration": 6,
+   "header": null,
+   "camera": {
+    "focus": [
+     "drone"
+    ],
+    "pad": 2.4
+   },
+   "overlay": {
+    "mark": "◆",
+    "kicker": "四旋翼无人机",
+    "title": "推空气，就能飞。",
+    "title2": "调转速，就能转。",
+    "footer": "升力 · 姿态 · 反扭矩",
+    "backdrop": true
+   },
+   "caption": "这就是四旋翼无人机。",
+   "actions": [
+    {
+     "do": "emit",
+     "target": "drone",
+     "from": [
+      [
+       2.2,
+       -2.2,
+       1.4
+      ],
+      [
+       2.2,
+       2.2,
+       1.4
+      ],
+      [
+       -2.2,
+       -2.2,
+       1.4
+      ],
+      [
+       -2.2,
+       2.2,
+       1.4
+      ]
+     ],
+     "dir": [
+      0,
+      0,
+      -1
+     ],
+     "spread": 14,
+     "speed": 2.6,
+     "rate": 8,
+     "life": 1.0,
+     "color": "teal",
+     "at": 0
+    }
+   ]
+  }
+ ]
+}

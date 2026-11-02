@@ -1,0 +1,35 @@
+<!doctype html><html><head><meta charset="utf-8"><title>四旋翼无人机是怎么飞起来的 · 故事板</title><style>
+  body{margin:0;background:#f4f2ee;font-family:"Noto Sans SC","PingFang SC","WenQuanYi Zen Hei",Arial,sans-serif;color:#1d1d1f}
+  .wrap{width:1960px;padding:40px;box-sizing:border-box}
+  header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;border-bottom:3px solid #1d1d1f;padding-bottom:18px}
+  h1{font-size:44px;margin:0 0 8px} .meta{font-size:20px;color:#555;line-height:1.6} .sw{display:inline-block;width:28px;height:28px;border-radius:6px;margin-left:6px;border:1px solid #0002;vertical-align:middle}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  .card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 0 #0001,0 8px 24px #0000000f}
+  .card img{width:100%;display:block;aspect-ratio:1920/1080}
+  .body{padding:16px 18px 18px} .row{display:flex;justify-content:space-between;font-size:17px;color:#777;margin-bottom:8px}
+  .no{font-weight:800;color:#1d1d1f} .cap{font-size:21px;font-weight:600;line-height:1.45;margin-bottom:8px}
+  .nar{font-size:16px;color:#555;margin-bottom:8px;line-height:1.5} .acts{font-size:14px;color:#888;font-family:ui-monospace,Menlo,monospace;line-height:1.5}
+  .ch{display:inline-block;background:#1d1d1f;color:#fff;border-radius:6px;padding:1px 8px;font-size:14px;margin-left:6px}
+  </style></head><body><div class="wrap"><header><div><h1>四旋翼无人机是怎么飞起来的</h1>
+  <div class="meta">主题 四旋翼无人机：升力、姿态、转向与续航 · 受众 对科技感兴趣的大众 · 语言 zh-CN · 6 个镜头 · 总时长 0:58.0</div></div>
+  <div class="meta">调色板 midnight <span class="sw" style="background:#070e1a" title="bg"></span><span class="sw" style="background:#e8eef7" title="ink"></span><span class="sw" style="background:#e8eef7" title="primary"></span><span class="sw" style="background:#7da2ff" title="secondary"></span><span class="sw" style="background:#4fd1c5" title="accent"></span><span class="sw" style="background:#16263d" title="ground"></span></div></header><div class="grid">
+  <div class="card"><img src="scene-01.png"><div class="body"><div class="row"><span><span class="no">S01</span></span><span>0:00.0 – 0:07.0 · 7.0s</span></div>
+  <div class="cap">这是一架四旋翼无人机。它没有舵面，全靠四个螺旋桨的转速差来飞行。</div>
+  
+  <div class="acts">🎥 drone<br>build → drone</div></div></div><div class="card"><img src="scene-02.png"><div class="body"><div class="row"><span><span class="no">S02</span></span><span>0:07.0 – 0:19.0 · 12.0s</span></div>
+  <div class="cap">螺旋桨把空气往下推，空气就把机身往上推。四股升力加起来大过重力，它就离地了。</div>
+  
+  <div class="acts">🎥 drone<br>highlight → drone.cw, drone.ccw<br>annotate → drone 「螺旋桨高速旋转」<br>emit → drone<br>force → drone<br>annotate → drone 「空气反推机身」<br>move → drone<br>readout → drone 「高度 {v} m」</div></div></div><div class="card"><img src="scene-03.png"><div class="body"><div class="row"><span><span class="no">S03</span></span><span>0:19.0 – 0:31.0 · 12.0s</span></div>
+  <div class="cap">让后面两个螺旋桨转得更快，机头就会微微下压。推力随之倾斜，分出一部分向前，无人机开始前进。</div>
+  
+  <div class="acts">🎥 follow drone<br>emit → drone<br>emit → drone<br>annotate → drone 「后侧加速」<br>annotate → drone 「前侧减速」<br>move → drone<br>readout → drone 「俯仰 {v}°」<br>move → drone<br>force → drone<br>move → drone</div></div></div><div class="card"><img src="scene-04.png"><div class="body"><div class="row"><span><span class="no">S04</span></span><span>0:31.0 – 0:42.0 · 11.0s</span></div>
+  <div class="cap">四个桨两两反转，扭矩正好抵消。一组加速、另一组减速，机身就会原地转过来。</div>
+  
+  <div class="acts">🎥 follow drone<br>highlight → drone.cw<br>highlight → drone.ccw<br>annotate → drone 「顺时针 × 2」<br>annotate → drone 「逆时针 × 2」<br>move → drone<br>readout → drone 「偏航 {v}°」</div></div></div><div class="card"><img src="scene-05.png"><div class="body"><div class="row"><span><span class="no">S05</span></span><span>0:42.0 – 0:52.0 · 10.0s</span></div>
+  <div class="cap">代价是：每一秒悬停都在消耗电池，所以它一次只能飞二三十分钟。</div>
+  
+  <div class="acts">🎥 follow drone<br>build → drone.battery<br>highlight → drone.battery<br>annotate → drone 「锂电池」<br>readout → drone 「电量 {v}%」<br>chart → —<br>move → drone</div></div></div><div class="card"><img src="scene-06.png"><div class="body"><div class="row"><span><span class="no">S06</span></span><span>0:52.0 – 0:58.0 · 6.0s</span></div>
+  <div class="cap">这就是四旋翼无人机。</div>
+  
+  <div class="acts">🎥 drone<br>emit → drone</div></div></div>
+  </div></div></body></html>

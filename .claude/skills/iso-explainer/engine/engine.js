@@ -53,14 +53,14 @@
     acts = {};
     for (const sc of scenes) {
       for (const a of sc.actions || []) {
-        const targets = Array.isArray(a.target) ? a.target : [a.target];
+        const targets = Array.isArray(a.target) ? a.target : [a.target == null ? '_' : a.target];
         targets.forEach((id, k) => {
           const stagger = (a.stagger || 0) * k;
-          const dur = a.dur != null ? a.dur : defaultDur(a.do);
           const t0 = sc.start + (a.at || 0) + stagger;
-          const t1 = a.do === 'flow' || a.do === 'highlight' || a.do === 'callout'
-            ? (a.until === 'end' ? total + 999 : t0 + dur)
-            : t0 + dur;
+          // persistent overlays/effects default to "until the end of this scene"
+          const persistent = PERSIST.includes(a.do);
+          const dur = a.dur != null ? a.dur : (persistent ? Math.max(0.3, sc.end - t0) : defaultDur(a.do));
+          const t1 = a.until === 'end' ? total + 999 : (typeof a.until === 'number' ? sc.start + a.until : t0 + dur);
           (acts[id] = acts[id] || []).push(Object.assign({}, a, { target: id, t0, t1, scene: sc.index }));
         });
       }
@@ -82,8 +82,9 @@
       });
     }
   }
+  const PERSIST = ['flow', 'highlight', 'callout', 'emit', 'stream', 'force', 'annotate', 'readout', 'chart'];
   function defaultDur(kind) {
-    return { trace: 1.2, assemble: 1.0, build: 1.8, link: 0.9, flow: 3, highlight: 2, callout: 2.5, label: 0.5, hide: 0.5, show: 0.5 }[kind] || 1;
+    return { trace: 1.2, assemble: 1.0, build: 1.8, link: 0.9, flow: 3, highlight: 2, callout: 2.5, label: 0.5, hide: 0.5, show: 0.5, move: 1.5 }[kind] || 1;
   }
   function splitCaption(text, lang) {
     const cjk = /^(zh|ja|ko)/i.test(lang);
@@ -156,16 +157,17 @@
   }
 
   // ---------- camera ----------
-  function nodeBounds(n) {
+  function nodeBounds(n, t) {
+    if (n.type === 'object') return objectWorldCorners(n, t || 0).map(isoV);
     const [w, d, h] = n.size;
     const [x, y, z] = n.pos;
     const pts = [];
     for (const dx of [0, w]) for (const dy of [0, d]) for (const dz of [0, h]) pts.push(iso(x + dx, y + dy, z + dz));
     return pts;
   }
-  function fitCamera(ids, pad) {
+  function fitCamera(ids, pad, t) {
     const pts = [];
-    ids.forEach((id) => { if (nodes[id]) pts.push(...nodeBounds(nodes[id])); });
+    ids.forEach((id) => { if (nodes[id]) pts.push(...nodeBounds(nodes[id], t)); });
     if (!pts.length) return { cx: 0, cy: 0, z: 1 };
     const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
     const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
@@ -183,30 +185,42 @@
       let tgt;
       if (c.focus || !prev) {
         const ids = !c.focus || c.focus === 'all' ? Object.keys(nodes) : c.focus;
-        tgt = fitCamera(ids, c.pad || 1.25);
+        tgt = fitCamera(ids, c.pad || 1.25, sc.start + (c.fitAt || 0));
       } else tgt = Object.assign({}, prev.end);
       if (c.zoom) tgt.z = c.zoom;
       if (c.zoomMul) tgt.z *= c.zoomMul;
       if (c.offset) { const o = iso(c.offset[0], c.offset[1], c.offset[2] || 0); tgt.cx += o[0]; tgt.cy += o[1]; }
       const drift = c.drift != null ? c.drift : (SB.meta.cameraDrift != null ? SB.meta.cameraDrift : 0.05);
       const pan = c.pan ? iso(c.pan[0], c.pan[1], 0) : [0, 0];
-      const entry = { start: tgt, end: { cx: tgt.cx + pan[0], cy: tgt.cy + pan[1], z: tgt.z * (1 + drift) }, ease: c.ease != null ? c.ease : 1.4 };
+      const entry = { start: tgt, end: { cx: tgt.cx + pan[0], cy: tgt.cy + pan[1], z: tgt.z * (1 + drift) }, ease: c.ease != null ? c.ease : 1.4,
+        follow: c.follow || null, followOffset: c.followOffset || [0, 0] };
+      if (c.follow && nodes[c.follow] && !c.focus) { const ft = fitCamera([c.follow], c.pad || 2.2, sc.start); if (!c.zoom) { entry.start.z = ft.z; entry.end.z = ft.z * (1 + drift); } }
       camTargets.push(entry);
       prev = entry;
     });
   }
-  function cameraAt(t) {
-    const sc = sceneAt(t);
-    const cur = camTargets[sc.index];
-    const local = clamp((t - sc.start) / sc.duration);
-    // continuous drift across the whole scene
-    const driftK = easeInOut(local);
+  function baseCam(i, t) {
+    const sc = scenes[i], cur = camTargets[i];
+    const driftK = easeInOut(clamp((t - sc.start) / sc.duration));
     const base = {
       cx: lerp(cur.start.cx, cur.end.cx, driftK), cy: lerp(cur.start.cy, cur.end.cy, driftK),
       z: Math.exp(lerp(Math.log(cur.start.z), Math.log(cur.end.z), driftK))
     };
+    if (cur.follow && nodes[cur.follow]) { // keep the moving hero object centred
+      const pts = nodeBounds(nodes[cur.follow], t);
+      const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+      const k = SB.scenes[i].camera.followLag != null ? SB.scenes[i].camera.followLag : 1;
+      const fx = (Math.min(...xs) + Math.max(...xs)) / 2, fy = (Math.min(...ys) + Math.max(...ys)) / 2 + (H * 0.04) / base.z;
+      base.cx = lerp(base.cx, fx + cur.followOffset[0], k); base.cy = lerp(base.cy, fy + cur.followOffset[1], k);
+    }
+    return base;
+  }
+  function cameraAt(t) {
+    const sc = sceneAt(t);
+    const cur = camTargets[sc.index];
+    const base = baseCam(sc.index, t);
     if (sc.index === 0 || cur.ease <= 0) return base;
-    const prevEnd = camTargets[sc.index - 1].end;
+    const prevEnd = baseCam(sc.index - 1, scenes[sc.index - 1].end - 1e-4);
     const k = easeInOut(prog(t, sc.start, sc.start + Math.min(cur.ease, sc.duration)));
     return {
       cx: lerp(prevEnd.cx, base.cx, k), cy: lerp(prevEnd.cy, base.cy, k),
@@ -247,6 +261,14 @@
     const base = col(part.color, 'primary');
     let s = `<g opacity="${f(alpha)}">`;
     const z = part.z + dz;
+    if (WIRE() && part.kind === 'box') { // x-ray wireframe look for generic blocks
+      const F = boxFaces(part.x, part.y, z, part.w, part.d, part.h);
+      const lc = highlight ? col(highlight) : (part.color && P[part.color] && ['teal', 'orange', 'accent', 'red'].includes(part.color) ? P[part.color] : P.line);
+      const fo = part.color === 'neutral' || part.color === 'ground' ? 0.25 : 0.5;
+      for (const k of ['left', 'right', 'top']) s += `<path d="${poly(F[k])}" fill="${P.fill}" fill-opacity="${fo}" stroke="${lc}" stroke-width="${f(LW(1.5))}" stroke-linejoin="round"/>`;
+      if (part.decor) s += part.decor(z, lc);
+      return s + '</g>';
+    }
     if (part.kind === 'box') {
       const F = boxFaces(part.x, part.y, z, part.w, part.d, part.h);
       const rnd = part.round ? ' stroke-linejoin="round"' : ' stroke-linejoin="round"';
@@ -594,7 +616,7 @@
     const fs = SB.meta.labelSize || 22;
     for (const id in nodes) {
       const n = nodes[id];
-      if (!n.label || n.type === 'platform') continue;
+      if (!n.label || n.type === 'platform' || n.type === 'object') continue;
       const st = nodeState(n, t);
       let a = clamp((Math.max(st.asm, st.trace * 0.6) - 0.5) / 0.4);
       for (const ac of acts[id] || []) if (ac.do === 'label') a = Math.max(a, prog(t, ac.t0, ac.t1));
@@ -666,15 +688,421 @@
     return s;
   }
 
+  // =====================================================================
+  // OBJECTS — mesh-based hero objects (x-ray wireframe), with motion
+  // =====================================================================
+  const WIRE = () => SB.meta.style === 'wire';
+  let CAMZ = 1;                                    // current camera zoom (for constant screen-space strokes)
+  const LW = (px) => px / CAMZ;                    // screen px -> world-svg units
+  const V = {
+    add: (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]], sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]],
+    mul: (a, k) => [a[0] * k, a[1] * k, a[2] * k], dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
+    cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]],
+    norm: (a) => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; },
+    lerp: (a, b, k) => [lerp(a[0], b[0], k), lerp(a[1], b[1], k), lerp(a[2], b[2], k)]
+  };
+  const VIEW = V.norm([1, 1, 1]);                  // direction towards the viewer
+  const isoV = (p) => iso(p[0], p[1], p[2]);
+  const depth = (p) => p[0] + p[1] + p[2];
+  const EASE = { linear: (x) => x, inOut: easeInOut, out: easeOut, in: (x) => x * x * x, back: easeOutBack };
+  function hash(n) { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
+
+  function rotM(rot) { // rot = [roll(x), pitch(y), yaw(z)] degrees; R = Rz * Ry * Rx
+    const [a, b, c] = rot.map((d) => (d * Math.PI) / 180);
+    const ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b), cc = Math.cos(c), sc = Math.sin(c);
+    return [
+      [cc * cb, cc * sb * sa - sc * ca, cc * sb * ca + sc * sa],
+      [sc * cb, sc * sb * sa + cc * ca, sc * sb * ca - cc * sa],
+      [-sb, cb * sa, cb * ca]
+    ];
+  }
+  const mulM = (m, v) => [m[0][0] * v[0] + m[0][1] * v[1] + m[0][2] * v[2], m[1][0] * v[0] + m[1][1] * v[1] + m[1][2] * v[2], m[2][0] * v[0] + m[2][1] * v[1] + m[2][2] * v[2]];
+
+  // motion state of an object at time t (pos + rot), driven by `move` actions
+  function motionAt(n, t) {
+    let pos = n.pos.slice(), rot = (n.rot || [0, 0, 0]).slice();
+    const moves = (acts[n.id] || []).filter((a) => a.do === 'move' && t >= a.t0).sort((a, b) => a.t0 - b.t0);
+    for (const a of moves) {
+      const k = (EASE[a.ease] || easeInOut)(prog(t, a.t0, a.t1));
+      const p0 = pos.slice(), r0 = rot.slice();
+      const pT = a.to ? a.to : (a.by ? V.add(p0, a.by) : p0);
+      const rT = a.rot ? a.rot : (a.rotBy ? V.add(r0, a.rotBy) : r0);
+      pos = V.lerp(p0, pT, k);
+      if (a.arc) pos[2] += a.arc * Math.sin(Math.PI * k);
+      rot = V.lerp(r0, rT, k);
+    }
+    return { pos, rot };
+  }
+  function xformAt(n, t) {
+    const m = motionAt(n, t), R = rotM(m.rot), pv = n.pivot || n._center || [0, 0, 0];
+    return { T: (p) => V.add(V.add(m.pos, mulM(R, V.sub(p, pv))), pv), R: (v) => mulM(R, v), pos: m.pos };
+  }
+
+  // profile helper: entries are [u,v] or {"arc":[cu,cv,r,deg0,deg1,steps]}
+  function expandProfile(prof) {
+    const out = [];
+    for (const e of prof) {
+      if (Array.isArray(e)) out.push(e);
+      else if (e.arc) {
+        const [cu, cv, r, d0, d1, st] = e.arc; const n = st || 16;
+        for (let i = 0; i <= n; i++) { const a = ((d0 + ((d1 - d0) * i) / n) * Math.PI) / 180; out.push([cu + r * Math.cos(a), cv + r * Math.sin(a)]); }
+      }
+    }
+    return out;
+  }
+  const AX = { x: [1, 0, 0], y: [0, 1, 0], z: [0, 0, 1] };
+  function planeMap(plane) { // returns (u,v,w) -> local xyz
+    if (plane === 'xy') return (u, v, w) => [u, v, w];
+    if (plane === 'yz') return (u, v, w) => [w, u, v];
+    return (u, v, w) => [u, w, v]; // 'xz' (default): profile in x/z, extruded along y
+  }
+  function ringPts(c, axis, r, n, phase = 0) {
+    const a = V.norm(axis);
+    const e1 = V.norm(Math.abs(a[2]) < 0.9 ? V.cross(a, [0, 0, 1]) : V.cross(a, [1, 0, 0]));
+    const e2 = V.cross(a, e1);
+    const out = [];
+    for (let i = 0; i < n; i++) { const th = phase + (i / n) * Math.PI * 2; out.push(V.add(c, V.add(V.mul(e1, r * Math.cos(th)), V.mul(e2, r * Math.sin(th))))); }
+    return out;
+  }
+  // Build world-space geometry for one part: {faces:[{pts,fill,op}], edges:[{pts,closed}]}
+  function partGeom(part, X, t, off) {
+    const T = (p) => X.T(V.add(p, off)), R = X.R;
+    const g = { faces: [], edges: [] };
+    const sh = part.shape || 'box';
+    if (sh === 'box') {
+      const [x, y, z] = part.at || [0, 0, 0], [w, d, h] = part.size || [1, 1, 1];
+      const c = [[x, y, z], [x + w, y, z], [x + w, y + d, z], [x, y + d, z], [x, y, z + h], [x + w, y, z + h], [x + w, y + d, z + h], [x, y + d, z + h]].map(T);
+      [[0, 1, 2, 3], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]].forEach((f) => g.faces.push({ pts: f.map((i) => c[i]) }));
+      [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]].forEach((e) => g.edges.push({ pts: [c[e[0]], c[e[1]]] }));
+    } else if (sh === 'cyl' || sh === 'fan' || sh === 'wheel') {
+      const base = T(part.at || [0, 0, 0]); const ax = V.norm(R(AX[part.axis || 'z'] || part.axis));
+      const h = part.h != null ? part.h : (sh === 'cyl' ? 1 : 0.15), r = part.r || 0.5, n = part.segments || 28;
+      const top = V.add(base, V.mul(ax, h));
+      const r0 = ringPts(base, ax, r, n), r1 = ringPts(top, ax, r, n);
+      g.faces.push({ pts: r0 }); g.faces.push({ pts: r1 });
+      for (let i = 0; i < n; i++) g.faces.push({ pts: [r0[i], r0[(i + 1) % n], r1[(i + 1) % n], r1[i]], side: true });
+      g.edges.push({ pts: r0, closed: true }); if (h > 0.02) g.edges.push({ pts: r1, closed: true });
+      // silhouette lines (perpendicular to the view)
+      let u = V.sub(VIEW, V.mul(ax, V.dot(VIEW, ax)));
+      if (Math.hypot(...u) > 1e-3 && h > 0.02) {
+        const s = V.mul(V.norm(V.cross(ax, V.norm(u))), r);
+        g.edges.push({ pts: [V.add(base, s), V.add(top, s)] }); g.edges.push({ pts: [V.sub(base, s), V.sub(top, s)] });
+      }
+      if (sh === 'fan' || sh === 'wheel') { // hub + blades/spokes, spinning
+        const blades = part.blades || (sh === 'fan' ? 5 : 6), spin = (part.spin || 0) * (t - (part._t0 || 0)) * Math.PI * 2;
+        const mid = V.add(base, V.mul(ax, h / 2));
+        const hub = ringPts(mid, ax, r * 0.18, 14);
+        g.edges.push({ pts: hub, closed: true, minor: true });
+        const tips = ringPts(mid, ax, r * 0.88, blades, spin), roots = ringPts(mid, ax, r * 0.18, blades, spin);
+        for (let i = 0; i < blades; i++) g.edges.push({ pts: [roots[i], tips[i]], minor: true });
+        if (sh === 'wheel') g.edges.push({ pts: ringPts(mid, ax, r * 0.62, 24), closed: true, minor: true });
+      }
+    } else if (sh === 'extrude') {
+      const prof = expandProfile(part.profile || []), M = planeMap(part.plane || 'xz');
+      const [w0, w1] = part.span || [0, 1];
+      const A = prof.map(([u, v]) => T(M(u, v, w0))), B = prof.map(([u, v]) => T(M(u, v, w1)));
+      const n = prof.length, closed = !part.open;
+      if (closed) { g.faces.push({ pts: A }); g.faces.push({ pts: B }); }
+      for (let i = 0; i < (closed ? n : n - 1); i++) { const j = (i + 1) % n; g.faces.push({ pts: [A[i], A[j], B[j], B[i]], side: true, idx: i }); }
+      g.edges.push({ pts: A, closed }); g.edges.push({ pts: B, closed });
+      const every = part.ribs || 1;
+      for (let i = 0; i < n; i++) if (part.open ? (i === 0 || i === n - 1 || i % every === 0) : true) g.edges.push({ pts: [A[i], B[i]], minor: part.open && i % every === 0 && i !== 0 && i !== n - 1 });
+      if (part.glassFaces) part.glassFaces.forEach((i) => { const f = g.faces.find((q) => q.idx === i); if (f) f.glass = true; });
+    } else if (sh === 'line') {
+      g.edges.push({ pts: (part.points || []).map(T), closed: !!part.closed, dashed: part.dashed });
+    } else if (sh === 'quad') { // a flat panel given by 4 points (glass windows, skirts...)
+      const q = (part.points || []).map(T);
+      g.faces.push({ pts: q, glass: part.style === 'glass' }); g.edges.push({ pts: q, closed: true });
+    }
+    return g;
+  }
+  function objectParts(n) { return n.parts || []; }
+  function partProgress(n, part, t, base) {
+    // parts with a `group` that some action targets appear on their own schedule
+    const gid = part.group ? n.id + '.' + part.group : null;
+    if (gid && (acts[gid] || []).some((a) => ['trace', 'build', 'assemble', 'show'].includes(a.do))) {
+      let tr = 0, asm = 0;
+      for (const a of acts[gid]) {
+        const p = prog(t, a.t0, a.t1);
+        if (a.do === 'trace' || a.do === 'build' || a.do === 'show') tr = Math.max(tr, p);
+        if (a.do === 'assemble') { asm = Math.max(asm, p); tr = Math.max(tr, p); }
+      }
+      return { trace: tr, asm, own: true, vis: 1 - hidden(gid, t) };
+    }
+    return { trace: base.trace, asm: 1, own: false, vis: 1 };
+  }
+  function objectCenter(n) {
+    const pts = [];
+    for (const part of objectParts(n)) {
+      const g = partGeom(part, { T: (p) => p, R: (v) => v }, 0, [0, 0, 0]);
+      g.faces.forEach((f) => pts.push(...f.pts)); g.edges.forEach((e) => pts.push(...e.pts));
+    }
+    if (!pts.length) return { c: [0, 0, 0], min: [0, 0, 0], max: [1, 1, 1] };
+    const min = [0, 1, 2].map((i) => Math.min(...pts.map((p) => p[i]))), max = [0, 1, 2].map((i) => Math.max(...pts.map((p) => p[i])));
+    return { c: V.mul(V.add(min, max), 0.5), min, max };
+  }
+  function objectWorldCorners(n, t) {
+    const X = xformAt(n, t), b = n._bb, out = [];
+    for (const x of [b.min[0], b.max[0]]) for (const y of [b.min[1], b.max[1]]) for (const z of [b.min[2], b.max[2]]) out.push(X.T([x, y, z]));
+    return out;
+  }
+  function anchorLocal(n, a) { return Array.isArray(a) ? a : (n.anchors && n.anchors[a]) || n._center; }
+
+  function faceStyle(part, face) {
+    const style = face.glass ? 'glass' : (part.style || 'body');
+    const c = col(part.color, style === 'hatch' ? 'teal' : 'line');
+    if (style === 'none') return null;
+    if (style === 'glass') return { fill: P.glass || '#2b4aa8', op: part.opacity != null ? part.opacity : 0.42 };
+    if (style === 'hatch') return { fill: `url(#hatch-${(part.color || 'teal').replace('#', '')})`, op: 0.9, tint: c };
+    if (style === 'solid') return { fill: col(part.fill, 'fill'), op: 0.92 };
+    return { fill: col(part.fill, 'fill'), op: part.opacity != null ? part.opacity : 0.5 };
+  }
+
+  function drawObject(n, t) {
+    const st = nodeState(n, t);
+    const vis = st.vis * dimFactor(n.id, t);
+    if (vis <= 0.001) return '';
+    const X = xformAt(n, t);
+    const hlNode = highlightActive(n, t);
+    const items = [];
+    const parts = objectParts(n);
+    // global edge counter so the tracing runs edge after edge through the whole object
+    let edgeTotal = 0; const geoms = [];
+    parts.forEach((part, pi) => {
+      const pp = partProgress(n, part, t, st);
+      if (pp.trace <= 0.001) { geoms.push(null); return; }
+      const off = pp.asm < 1 && pp.own && part.drop !== 0 ? V.mul(part.dropDir || [0, 0, 1], (1 - easeOutBack(pp.asm)) * (part.drop || 1.2)) : [0, 0, 0];
+      part._t0 = 0;
+      const g = partGeom(part, X, t, off);
+      geoms.push({ g, pp, part });
+      if (!pp.own) edgeTotal += g.edges.length;
+    });
+    let edgeIdx = 0;
+    geoms.forEach((G) => {
+      if (!G) return;
+      const { g, pp, part } = G;
+      const gid = part.group ? n.id + '.' + part.group : null;
+      const hl = (gid && highlightActive({ id: gid }, t)) || hlNode;
+      const lineC = hl ? col(hl) : col(part.line || part.color, part.style === 'hatch' ? 'teal' : 'line');
+      const alpha = (part.alpha != null ? part.alpha : 1) * pp.vis;
+      const fillK = clamp((pp.trace - 0.55) / 0.45);
+      g.faces.forEach((fc) => {
+        const st2 = faceStyle(part, fc); if (!st2 || fillK <= 0) return;
+        items.push({ d: depth(V.mul(fc.pts.reduce((a, b) => V.add(a, b), [0, 0, 0]), 1 / fc.pts.length)) - (fc.side ? 0 : 0.001),
+          s: `<path d="${poly(fc.pts.map(isoV))}" fill="${st2.fill}" fill-opacity="${f(st2.op * fillK * alpha)}" stroke="none"/>` });
+      });
+      const n2 = g.edges.length;
+      g.edges.forEach((e, k) => {
+        let p;
+        if (pp.own) p = clamp((pp.trace - (k / Math.max(1, n2)) * 0.6) / 0.4);
+        else { p = clamp((pp.trace - (edgeIdx / Math.max(1, edgeTotal)) * 0.7) / 0.3); edgeIdx++; }
+        if (p <= 0) return;
+        const pts = e.pts.map(isoV); const d = 'M' + pts.map(pt).join('L') + (e.closed ? 'Z' : '');
+        const w = LW((part.width || (e.minor ? 1.0 : 1.6)) * (hl ? 1.6 : 1));
+        const dash = e.dashed ? `stroke-dasharray="${f(LW(5))} ${f(LW(6))}" opacity="${f(alpha * 0.8)}"` : (p < 1 ? `pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="${f(1 - p)}"` : '');
+        items.push({ d: depth(V.mul(e.pts.reduce((a, b) => V.add(a, b), [0, 0, 0]), 1 / e.pts.length)) + 0.002,
+          s: `<path d="${d}" fill="none" stroke="${lineC}" stroke-opacity="${f(alpha * (e.minor ? 0.75 : 1))}" stroke-width="${f(w)}" stroke-linecap="round" stroke-linejoin="round" ${dash}${hl ? ' filter="url(#glow)"' : ''}/>` });
+      });
+    });
+    items.sort((a, b) => a.d - b.d);
+    let s = `<g opacity="${f(vis)}">`;
+    // soft ground shadow
+    if (n.shadow !== false && st.trace > 0.3) {
+      const gz = n.ground != null ? n.ground : 0;
+      const cs = objectWorldCorners(n, t);
+      const minZ = Math.min(...cs.map((c) => c[2]));
+      const lift = Math.max(0, minZ - gz);
+      const fade = clamp((st.trace - 0.3) / 0.5) * clamp(1 - lift / 6);
+      if (fade > 0.01) {
+        const xs = cs.map((c) => c[0]), ys = cs.map((c) => c[1]);
+        const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+        const q = [[x0, y0, gz], [x1, y0, gz], [x1, y1, gz], [x0, y1, gz]].map(isoV);
+        s += `<path d="${poly(q)}" fill="#000" opacity="${f(0.38 * fade)}" filter="url(#soft)"/>`;
+      }
+    }
+    s += items.map((i) => i.s).join('');
+    s += '</g>';
+    return s;
+  }
+
+  // ---------- particles: emit (spray from a point) & stream (along a path) ----------
+  function drawEmit(n, a, t) {
+    const rate = a.rate || 40, life = a.life || 1.0, spread = ((a.spread != null ? a.spread : 18) * Math.PI) / 180;
+    const speed = a.speed || 4, grav = a.gravity || 0, size = a.size || 2.6, c = col(a.color, 'orange');
+    const tEnd = Math.min(t, a.t1);
+    const kMin = Math.max(0, Math.floor((t - life - a.t0) * rate)), kMax = Math.floor((tEnd - a.t0) * rate);
+    const froms = Array.isArray(a.from) && Array.isArray(a.from[0]) ? a.from : [a.from || 'origin'];
+    let s = '';
+    for (let k = kMin; k <= kMax; k++) {
+      const e = a.t0 + k / rate, age = t - e;
+      if (age < 0 || age > life) continue;
+      const X = xformAt(n, e);
+      froms.forEach((fr, fi) => {
+        const seed = k * 7.13 + fi * 101.7 + (a.seed || 0);
+        const o = X.T(anchorLocal(n, fr));
+        const dir = V.norm(X.R(a.dir || [-1, 0, 0]));
+        const e1 = V.norm(Math.abs(dir[2]) < 0.9 ? V.cross(dir, [0, 0, 1]) : V.cross(dir, [1, 0, 0])), e2 = V.cross(dir, e1);
+        const th = hash(seed) * Math.PI * 2, rr = Math.tan(spread) * Math.sqrt(hash(seed + 1.3));
+        const dv = V.norm(V.add(dir, V.add(V.mul(e1, rr * Math.cos(th)), V.mul(e2, rr * Math.sin(th)))));
+        const sp = speed * (0.7 + 0.6 * hash(seed + 2.9));
+        let p = V.add(o, V.mul(dv, sp * age)); p[2] -= 0.5 * grav * age * age;
+        const q = isoV(p), fade = (1 - age / life) * clamp(age / 0.05);
+        const pc = a.color2 && hash(seed + 5.1) > 0.6 ? col(a.color2) : c;
+        s += `<circle cx="${f(q[0])}" cy="${f(q[1])}" r="${f(LW(size * (0.6 + 0.8 * hash(seed + 4.2))))}" fill="${pc}" opacity="${f(fade)}"/>`;
+      });
+    }
+    return s;
+  }
+  function drawStream(n, a, t) {
+    const X = xformAt(n, t);
+    const paths = Array.isArray(a.path[0][0]) ? a.path : [a.path];
+    const c = col(a.color, 'teal'), size = a.size || 2.6;
+    let s = '';
+    paths.forEach((pth, pi) => {
+      const w = pth.map((p) => X.T(anchorLocal(n, p)));
+      const L = polyLen(w), speed = a.speed || 2.5, per = a.particles || 6, gap = L / speed / per;
+      const kMax = Math.floor((Math.min(t, a.t1) - a.t0) / gap);
+      for (let k = Math.max(0, kMax - per * 3); k <= kMax; k++) {
+        const e = a.t0 + k * gap + pi * gap * 0.37, sPos = (t - e) * speed;
+        if (sPos < 0 || sPos > L) continue;
+        const p = pointAt(w, sPos), q = isoV(p);
+        const fade = clamp(sPos / 0.3) * clamp((L - sPos) / 0.4) * clamp((a.t1 + 0.4 - t) / 0.4);
+        s += `<circle cx="${f(q[0])}" cy="${f(q[1])}" r="${f(LW(size))}" fill="${c}" opacity="${f(fade)}"/>`;
+      }
+    });
+    return s;
+  }
+  function drawForce(n, a, t) {
+    const X = xformAt(n, t);
+    const pts = a.points || [a.point || 'origin'];
+    const c = col(a.color, 'orange'), len = a.length || 2.4, dir = V.norm(a.dir || [0, 0, -1]);
+    const out = clamp((a.t1 + 0.4 - t) / 0.4);
+    let s = '';
+    pts.forEach((pp, i) => {
+      const k = easeOut(prog(t, a.t0 + i * (a.stagger2 || 0.15), a.t0 + i * (a.stagger2 || 0.15) + 0.6));
+      if (k <= 0) return;
+      const tip = X.T(anchorLocal(n, pp)), dw = X.R(dir);
+      const tail = V.sub(tip, V.mul(dw, len)), head = V.sub(tip, V.mul(dw, len * (1 - k)));
+      const A = isoV(tail), B = isoV(head);
+      const ang = Math.atan2(B[1] - A[1], B[0] - A[0]), hs = LW(9);
+      const l1 = [B[0] - Math.cos(ang - 0.45) * hs, B[1] - Math.sin(ang - 0.45) * hs], l2 = [B[0] - Math.cos(ang + 0.45) * hs, B[1] - Math.sin(ang + 0.45) * hs];
+      s += `<g opacity="${f(out)}"><path d="M${pt(A)}L${pt(B)}" stroke="${c}" stroke-width="${f(LW(2))}" stroke-linecap="round"/>`;
+      if (k > 0.6) s += `<path d="M${pt(l1)}L${pt(B)}L${pt(l2)}" fill="none" stroke="${c}" stroke-width="${f(LW(2))}" stroke-linecap="round" stroke-linejoin="round"/>`;
+      s += '</g>';
+    });
+    return s;
+  }
+  function drawEffects(t, layer) { // world-space effects of objects (inside camera group)
+    let s = '';
+    for (const id in acts) {
+      const baseId = id.split('.')[0], n = nodes[baseId];
+      if (!n) continue;
+      for (const a of acts[id]) {
+        if (t < a.t0 || t > a.t1 + (a.do === 'emit' ? (a.life || 1) : 0.5)) continue;
+        const dim = dimFactor(baseId, t) * nodeState(n, t).vis;
+        if (dim <= 0.01) continue;
+        let piece = '';
+        if (a.do === 'emit') piece = drawEmit(n, a, t);
+        else if (a.do === 'stream') piece = drawStream(n, a, t);
+        else if (a.do === 'force') piece = drawForce(n, a, t);
+        if (piece) s += `<g opacity="${f(dim)}">${piece}</g>`;
+      }
+    }
+    return s;
+  }
+
+  // ---------- screen-space annotations, readouts, charts ----------
+  function worldPointOf(id, point, t) {
+    const n = nodes[id.split('.')[0]];
+    if (!n) return null;
+    if (n.type === 'object') return xformAt(n, t).T(anchorLocal(n, point));
+    const [x, y, z] = n.pos, [w, d, h] = n.size;
+    return Array.isArray(point) ? point : [x + w / 2, y + d / 2, z + h * 0.6];
+  }
+  function drawAnnotations(t, cam) {
+    let s = '';
+    const fsz = (SB.meta.annotationSize || 26);
+    for (const id in acts) for (const a of acts[id]) {
+      if (t < a.t0 || t > a.t1 + 0.5) continue;
+      const fade = clamp((a.t1 + 0.5 - t) / 0.5);
+      if (a.do === 'annotate') {
+        const wp = worldPointOf(id, a.point, t); if (!wp) continue;
+        const A = screenOf(wp, cam);
+        const dx = a.dx != null ? a.dx : (a.side === 'left' ? -220 : 220), dy = a.dy != null ? a.dy : -90;
+        const B = [A[0] + dx, A[1] + dy];
+        const k = easeOut(prog(t, a.t0, a.t0 + 0.6)), kt = clamp((t - a.t0 - 0.35) / 0.4);
+        const E = [lerp(A[0], B[0], k), lerp(A[1], B[1], k)];
+        const c = col(a.color, 'teal');
+        const left = dx < 0;
+        s += `<g opacity="${f(fade)}">`;
+        s += `<circle cx="${f(A[0])}" cy="${f(A[1])}" r="5" fill="${c}"/>`;
+        s += `<path d="M${pt(A)}L${pt(E)}" stroke="${c}" stroke-width="1.6"/>`;
+        const tx = B[0] + (left ? -12 : 12), anchor = left ? 'end' : 'start';
+        s += `<g opacity="${f(kt)}" transform="translate(${f((1 - kt) * (left ? 8 : -8))},0)">`;
+        s += `<text x="${f(tx)}" y="${f(B[1] + 2)}" font-size="${fsz}" font-weight="700" fill="${col(a.textColor, 'text')}" text-anchor="${anchor}" dominant-baseline="central">${esc(a.text || '')}</text>`;
+        if (a.sub) s += `<text x="${f(tx)}" y="${f(B[1] + fsz * 1.05)}" font-size="${f(fsz * 0.66)}" fill="${P.muted || P.text}" text-anchor="${anchor}" dominant-baseline="central">${esc(a.sub)}</text>`;
+        s += '</g></g>';
+      } else if (a.do === 'readout') {
+        let pos;
+        if (a.screen) pos = [a.screen[0] * W, a.screen[1] * H];
+        else { const wp = worldPointOf(id, a.point, t); if (!wp) continue; const A = screenOf(wp, cam); pos = [A[0] + (a.dx || 120), A[1] + (a.dy || -60)]; }
+        const k = (EASE[a.ease] || easeInOut)(prog(t, a.t0, a.t0 + (a.count || Math.max(0.3, a.t1 - a.t0 - 0.3))));
+        const v = lerp(a.from || 0, a.to != null ? a.to : 0, k);
+        const txt = String(a.text || '{v}').replace('{v}', v.toFixed(a.decimals || 0));
+        s += `<text x="${f(pos[0])}" y="${f(pos[1])}" font-family="var(--mono)" font-size="${a.size || 24}" font-weight="600" fill="${col(a.color, 'teal')}" opacity="${f(fade * clamp((t - a.t0) / 0.3))}" letter-spacing="1">${esc(txt)}</text>`;
+      } else if (a.do === 'chart') {
+        s += drawChart(a, t, fade);
+      }
+    }
+    return s;
+  }
+  function drawChart(a, t, fade) {
+    const w = a.w || 520, h = a.h || 290;
+    const x0 = a.x != null ? a.x * W : W - w - 96, y0 = a.y != null ? a.y * H : 140;
+    const appear = easeOut(clamp((t - a.t0) / 0.5));
+    const k = easeInOut(prog(t, a.t0 + 0.3, a.t0 + 0.3 + (a.draw || 2.2)));
+    const px = x0 + 54, py = y0 + 56, pw = w - 84, ph = h - 120;
+    let s = `<g opacity="${f(fade * appear)}" transform="translate(0,${f((1 - appear) * 12)})">`;
+    s += `<rect x="${f(x0)}" y="${f(y0)}" width="${w}" height="${h}" rx="12" fill="${P.bg}" fill-opacity="0.72" stroke="${P.line}" stroke-opacity="0.35" stroke-width="1.5"/>`;
+    s += `<text x="${f(x0 + 24)}" y="${f(y0 + 32)}" font-family="var(--mono)" font-size="17" fill="${P.text}" opacity="0.85" letter-spacing="1">${esc(a.title || '')}</text>`;
+    s += `<path d="M${f(px)},${f(py)}L${f(px)},${f(py + ph)}L${f(px + pw)},${f(py + ph)}" fill="none" stroke="${P.line}" stroke-opacity="0.7" stroke-width="1.5"/>`;
+    if (a.xlabel) s += `<text x="${f(px)}" y="${f(py + ph + 30)}" font-family="var(--mono)" font-size="15" fill="${P.text}" opacity="0.8">${esc(a.xlabel)}</text>`;
+    (a.series || []).forEach((se) => {
+      const pts = se.points.map(([u, v]) => [px + u * pw, py + (1 - v) * ph]);
+      const d = 'M' + pts.map(pt).join('L');
+      const c = col(se.color, 'teal');
+      s += `<path d="${d}" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="${f(1 - k)}"/>`;
+      if (se.label && k > 0.6) {
+        const at = se.labelAt != null ? se.labelAt : 0.35; const lp = pts[Math.min(pts.length - 1, Math.round(at * (pts.length - 1)))];
+        s += `<text x="${f(lp[0] + 10)}" y="${f(lp[1] - 12)}" font-size="20" font-weight="600" fill="${c}" opacity="${f(clamp((k - 0.6) / 0.3))}">${esc(se.label)}</text>`;
+      }
+    });
+    return s + '</g>';
+  }
+
+  let DEFS = '';
+  function buildDefs() {
+    const hatchColors = new Set(['teal']);
+    (SB.nodes || []).forEach((n) => (n.parts || []).forEach((p) => { if (p.style === 'hatch') hatchColors.add(p.color || 'teal'); }));
+    let s = '<defs>';
+    hatchColors.forEach((c) => {
+      s += `<pattern id="hatch-${c.replace('#', '')}" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-30)"><rect width="7" height="7" fill="${col(c)}" fill-opacity="0.12"/><line x1="0" y1="0" x2="0" y2="7" stroke="${col(c)}" stroke-width="2" stroke-opacity="0.75"/></pattern>`;
+    });
+    s += '<filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>';
+    s += '<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
+    DEFS = s + '</defs>';
+  }
   // ---------- grid ----------
   let gridCache = '';
   function buildGrid() {
     const R = SB.meta.gridExtent || 40;
+    const step = SB.meta.gridStep || (SB.meta.style === 'wire' ? 2 : 1);
+    const gz = SB.meta.gridZ || 0;
     let s = '';
-    for (let i = -R; i <= R; i++) {
-      const a = iso(i, -R, 0), b = iso(i, R, 0), c = iso(-R, i, 0), d = iso(R, i, 0);
-      const major = i % 4 === 0;
-      s += `<path d="M${pt(a)}L${pt(b)}M${pt(c)}L${pt(d)}" stroke="${P.grid}" stroke-width="${major ? 1.6 : 0.8}" opacity="${major ? 0.9 : 0.6}"/>`;
+    for (let i = -R; i <= R; i += step) {
+      const a = iso(i, -R, gz), b = iso(i, R, gz), c = iso(-R, i, gz), d = iso(R, i, gz);
+      const major = SB.meta.style === 'wire' ? false : i % 4 === 0;
+      s += `<path d="M${pt(a)}L${pt(b)}M${pt(c)}L${pt(d)}" stroke="${P.grid}" stroke-width="${major ? 1.6 : (SB.meta.style === 'wire' ? 1.1 : 0.8)}" opacity="${major ? 0.9 : 0.6}"/>`;
     }
     gridCache = s;
   }
@@ -683,16 +1111,18 @@
   function render(t) {
     t = clamp(t, 0, total - 1e-6);
     const cam = cameraAt(t);
+    CAMZ = cam.z;
     const sc = sceneAt(t);
     const world = $('world');
-    let s = `<g transform="translate(${f(W / 2)},${f(H / 2)}) scale(${cam.z.toFixed(5)}) translate(${f(-cam.cx)},${f(-cam.cy)})">`;
+    let s = DEFS + `<g transform="translate(${f(W / 2)},${f(H / 2)}) scale(${cam.z.toFixed(5)}) translate(${f(-cam.cx)},${f(-cam.cy)})">`;
     if (SB.meta.grid !== false) s += gridCache;
 
     // order: platforms, highlights, link pipes, nodes (depth sorted), flow particles
     const ordered = Object.values(nodes).sort((a, b) => {
       const pa = a.type === 'platform' ? -1e6 : 0, pb = b.type === 'platform' ? -1e6 : 0;
-      const da = a.pos[0] + a.size[0] / 2 + a.pos[1] + a.size[1] / 2 + a.pos[2] * 0.5;
-      const db = b.pos[0] + b.size[0] / 2 + b.pos[1] + b.size[1] / 2 + b.pos[2] * 0.5;
+      const A = a._sortPos || a.pos, B = b._sortPos || b.pos;
+      const da = A[0] + a.size[0] / 2 + A[1] + a.size[1] / 2 + A[2] * 0.5;
+      const db = B[0] + b.size[0] / 2 + B[1] + b.size[1] / 2 + B[2] * 0.5;
       return pa - pb || (a.layer || 0) - (b.layer || 0) || da - db;
     });
     const platforms = ordered.filter((n) => n.type === 'platform');
@@ -701,11 +1131,13 @@
     for (const n of ordered) s += drawHighlight(n, t);
     let over = '';
     for (const id in links) { const r = drawLink(links[id], t); s += r.under; over += r.over; }
-    for (const n of others) s += drawNode(n, t);
+    for (const n of others) s += n.type === 'object' ? drawObject(n, t) : drawNode(n, t);
     s += over;
+    s += drawEffects(t);
     s += '</g>';
     s += drawLabels(t, cam);
     s += drawCallouts(t, cam);
+    s += drawAnnotations(t, cam);
     world.innerHTML = s;
     drawOverlay(t, sc);
   }
@@ -777,15 +1209,45 @@
       const outA = clamp((sc.end - t) / 0.5);
       tc.style.opacity = Math.min(inA, outA);
       tc.style.transform = `translateY(${f((1 - inA) * 18)}px)`;
-      const html = (o.kicker ? `<div class="kicker">${esc(o.kicker)}</div>` : '') + `<div class="title">${esc(o.title || '')}</div>` + (o.subtitle ? `<div class="subtitle">${esc(o.subtitle)}</div>` : '');
+      const html = (o.mark ? `<div class="mark">${esc(o.mark)}</div>` : '') + (o.kicker ? `<div class="kicker">${esc(o.kicker)}</div>` : '') + `<div class="title">${esc(o.title || '')}</div>` +
+        (o.title2 ? `<div class="title title2">${esc(o.title2)}</div>` : '') + (o.subtitle ? `<div class="subtitle">${esc(o.subtitle)}</div>` : '') + (o.footer ? `<div class="footer">${esc(o.footer)}</div>` : '');
       if (tc.dataset.html !== html) { tc.innerHTML = html; tc.dataset.html = html; }
-      tc.className = 'titlecard ' + (o.position || 'center');
+      tc.className = 'titlecard ' + (o.position || 'center') + (o.backdrop ? ' backdrop' : '');
     } else tc.style.opacity = 0;
 
-    // progress bar
+    // progress bar (+ chapter ticks)
     const pb = $('progress');
-    pb.style.display = SB.meta.progress === false ? 'none' : 'block';
+    $('progresswrap').style.display = SB.meta.progress === false ? 'none' : 'block';
     pb.style.width = (t / total) * 100 + '%';
+
+    // header block: kicker / title / subtitle / tag (inherits until changed; null hides)
+    const hd = $('header');
+    const hdr = headerOf(sc.index);
+    if (hdr) {
+      const prevH = sc.index > 0 ? headerOf(sc.index - 1) : null, nextH = scenes[sc.index + 1] ? headerOf(sc.index + 1) : null;
+      const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+      const inA = same(prevH, hdr) ? 1 : easeOut(clamp((t - sc.start - 0.1) / 0.5));
+      const outA = !nextH || same(nextH, hdr) ? 1 : clamp((sc.end - t) / 0.3);
+      hd.style.opacity = Math.min(inA, outA);
+      hd.style.transform = `translateY(${f((1 - inA) * 10)}px)`;
+      const html = (hdr.kicker ? `<div class="h-kicker">${esc(hdr.kicker)}</div>` : '') + (hdr.title ? `<div class="h-title">${esc(hdr.title)}</div>` : '') +
+        (hdr.subtitle ? `<div class="h-sub">${esc(hdr.subtitle)}</div>` : '') + (hdr.tag ? `<div class="h-tag" style="--tagc:${col(hdr.tagColor, 'muted')}">${esc(hdr.tag)}</div>` : '');
+      if (hd.dataset.html !== html) { hd.innerHTML = html; hd.dataset.html = html; }
+    } else hd.style.opacity = 0;
+
+    // fact box (top-right)
+    const fb = $('fact');
+    if (sc.fact) {
+      const a0 = sc.start + (sc.fact.at || 0.6);
+      const a = Math.min(easeOut(clamp((t - a0) / 0.5)), clamp((sc.end - t) / 0.4));
+      fb.style.opacity = a; fb.style.transform = `translateY(${f((1 - a) * 10)}px)`;
+      const html = (sc.fact.kicker ? `<div class="f-kicker">${esc(sc.fact.kicker)}</div>` : '') + `<div class="f-text">${esc(sc.fact.text || '')}</div>`;
+      if (fb.dataset.html !== html) { fb.innerHTML = html; fb.dataset.html = html; }
+    } else fb.style.opacity = 0;
+  }
+  function headerOf(i) {
+    for (let k = i; k >= 0; k--) if (SB.scenes[k].header !== undefined) return SB.scenes[k].header;
+    return null;
   }
 
   // ---------- init ----------
@@ -794,18 +1256,24 @@
     SB.meta = SB.meta || {};
     W = SB.meta.width || 1920; H = SB.meta.height || 1080;
     U = SB.meta.unit || 44;
-    const pal = typeof SB.meta.palette === 'object' ? SB.meta.palette : (window.ISO_PALETTES[SB.meta.palette || 'blueprint'] || window.ISO_PALETTES.blueprint);
-    P = Object.assign({}, window.ISO_PALETTES.blueprint, typeof SB.meta.palette === 'object' && SB.meta.palette.base ? window.ISO_PALETTES[SB.meta.palette.base] : {}, pal);
+    const pal = typeof SB.meta.palette === 'object' ? SB.meta.palette : (window.ISO_PALETTES[SB.meta.palette || 'midnight'] || window.ISO_PALETTES.midnight);
+    P = Object.assign({}, window.ISO_PALETTES.midnight, typeof SB.meta.palette === 'object' && SB.meta.palette.base ? window.ISO_PALETTES[SB.meta.palette.base] : {}, pal);
+    if (!SB.meta.style) SB.meta.style = pal.style || (pal.base && window.ISO_PALETTES[pal.base] && window.ISO_PALETTES[pal.base].style) || 'flat';
     nodes = {}; links = {};
     (SB.nodes || []).forEach((n) => {
       n.pos = n.pos || [0, 0, 0]; if (n.pos.length < 3) n.pos = [n.pos[0], n.pos[1], 0];
       n.size = n.size || [2, 2, n.type === 'platform' ? 0.3 : 1.6];
       nodes[n.id] = n;
+      if (n.type === 'object') { // local bbox -> pivot + approximate size for sorting/fit
+        const bb = objectCenter(n); n._bb = bb; n._center = bb.c;
+        n.size = V.sub(bb.max, bb.min); n._sortPos = V.add(n.pos, bb.min);
+      }
     });
     (SB.links || []).forEach((l) => { links[l.id] = l; });
     buildTimeline();
     buildCamera();
     buildGrid();
+    buildDefs();
     // stage styles
     const root = document.documentElement;
     root.style.setProperty('--W', W + 'px'); root.style.setProperty('--H', H + 'px');
@@ -815,8 +1283,18 @@
     root.style.setProperty('--accent', P.accent); root.style.setProperty('--labelbg', P.labelBg);
     root.style.setProperty('--capsize', (SB.meta.captionSize || 40) + 'px');
     if (SB.meta.font) root.style.setProperty('--font', SB.meta.font);
+    root.style.setProperty('--teal', P.teal || P.accent); root.style.setProperty('--muted', P.muted || P.text);
+    root.style.setProperty('--line', P.line || P.ink); root.style.setProperty('--markc', P.red || P.accent);
+    document.body.dataset.style = SB.meta.style;
+    // brand block
+    const b = SB.meta.brand;
+    const bEl = $('brand');
+    if (b && typeof b === 'object') { bEl.className = 'brandblock'; bEl.innerHTML = (b.mark ? `<span class="b-mark">${esc(b.mark)}</span>` : '') + `<span class="b-text"><span class="b-name">${esc(b.name || '')}</span><span class="b-tag">${esc(b.tagline || '')}</span></span>`; }
+    else { bEl.className = ''; bEl.textContent = b || ''; }
+    // progress ticks at chapter changes
+    const ticks = $('ticks'); ticks.innerHTML = '';
+    scenes.forEach((sc, i) => { if (i > 0 && sc.chapter && sc.chapter !== scenes[i - 1].chapter) { const d = document.createElement('i'); d.style.left = (sc.start / total) * 100 + '%'; ticks.appendChild(d); } });
     const svg = $('world'); svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-    $('brand').textContent = SB.meta.brand || '';
     return { duration: total, scenes: scenes.map((s) => ({ id: s.id, start: s.start, end: s.end, duration: s.duration, caption: s.caption || s.narration || '', narration: s.narration || '', chapter: s.chapter || '', actions: (s.actions || []).length })), cues: captionCues };
   }
 

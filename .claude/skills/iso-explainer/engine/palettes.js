@@ -1,5 +1,25 @@
 // Palette presets. Every node/link color may reference a key below or be a raw hex.
 window.ISO_PALETTES = {
+  // 午夜 X 光线稿（参考视频同款）：深海军蓝 + 白色线稿 + 青色内部组件 + 橙色力/喷流
+  midnight: {
+    style: 'wire',
+    bg: '#070e1a', bg2: '#13233b', grid: '#1d3150', ink: '#e8eef7', line: '#e8eef7', ghost: '#7f93b3',
+    fill: '#0c1830', glass: '#2a46a8', ground: '#16263d',
+    primary: '#e8eef7', secondary: '#7da2ff', accent: '#4fd1c5', teal: '#4fd1c5', orange: '#f6ad55', red: '#e5484d',
+    success: '#4fd1c5', danger: '#e5484d', neutral: '#5b6b85', glow: '#4fd1c5', muted: '#9aa7bb',
+    text: '#ffffff', labelBg: '#0c1830', labelText: '#ffffff',
+    captionBg: 'rgba(4,9,18,0.72)', captionText: '#ffffff'
+  },
+  // 纸面线稿：浅色背景版的 X 光线稿
+  draft: {
+    style: 'wire',
+    bg: '#f3f1ec', bg2: '#fbfaf7', grid: '#e3dfd6', ink: '#1d2433', line: '#1d2433', ghost: '#9aa3b2',
+    fill: '#ffffff', glass: '#9db4ff', ground: '#e3dfd6',
+    primary: '#1d2433', secondary: '#3d63dd', accent: '#0f9d8a', teal: '#0f9d8a', orange: '#e8772e', red: '#d6363c',
+    success: '#0f9d8a', danger: '#d6363c', neutral: '#9aa3b2', glow: '#0f9d8a', muted: '#5d6676',
+    text: '#1d2433', labelBg: '#ffffff', labelText: '#1d2433',
+    captionBg: 'rgba(29,36,51,0.85)', captionText: '#ffffff'
+  },
   // 深蓝图纸：科技/系统架构
   blueprint: {
     bg: '#0d1b2a', bg2: '#13263b', grid: '#1f3a56', ink: '#e6f1ff', ghost: '#7fb8ff',
