@@ -44,5 +44,6 @@ const opt = (k, d) => { const i = args.indexOf('--' + k); return i >= 0 ? args[i
     execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', silent, ...inputs, '-filter_complex', filters.join(';') + `;${labels.join('')}amix=inputs=${labels.length}:normalize=0[a]`, '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-t', String(info.total), out], { stdio: 'inherit' });
     fs.unlinkSync(silent);
   } else fs.renameSync(silent, out);
+  const tmpWav = out.replace(/\.mp4$/, '.music.wav'); if (fs.existsSync(tmpWav)) fs.unlinkSync(tmpWav);
   console.log(`mp4: ${out}`);
 })().catch((e) => { console.error(e); process.exit(1); });
