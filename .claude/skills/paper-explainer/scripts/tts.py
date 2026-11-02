@@ -27,7 +27,7 @@ def cues(story):
 
 
 def to_mp3(wav, mp3):
-    subprocess.check_call(["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-af", "apad=pad_dur=0.06", "-ac", "1", "-ar", "24000", "-b:a", "80k", mp3])
+    subprocess.check_call(["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-af", "loudnorm=I=-16:TP=-1.5:LRA=11,apad=pad_dur=0.06", "-ac", "1", "-ar", "24000", "-b:a", "80k", mp3])
 
 
 def main():

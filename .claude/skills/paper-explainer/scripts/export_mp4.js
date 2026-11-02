@@ -44,7 +44,7 @@ const opt = (k, d) => { const i = args.indexOf('--' + k); return i >= 0 ? args[i
     inputs.push('-i', src); const k = nIn(); const ms = Math.round(c.t0 * 1000); filters.push(`[${k}:a]adelay=${ms}|${ms}[a${k}]`); labels.push(`[a${k}]`); });
   await browser.close();
   if (labels.length) {
-    execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', silent, ...inputs, '-filter_complex', filters.join(';') + `;${labels.join('')}amix=inputs=${labels.length}:normalize=0[a]`, '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-t', String(info.total), out], { stdio: 'inherit' });
+    execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', silent, ...inputs, '-filter_complex', filters.join(';') + `;${labels.join('')}amix=inputs=${labels.length}:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11[a]`, '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-t', String(info.total), out], { stdio: 'inherit' });
     fs.unlinkSync(silent);
   } else fs.renameSync(silent, out);
   const tmpWav = out.replace(/\.mp4$/, '.music.wav'); if (fs.existsSync(tmpWav)) fs.unlinkSync(tmpWav);

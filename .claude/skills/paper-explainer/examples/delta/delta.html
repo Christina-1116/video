@@ -41,6 +41,8 @@ main{max-width:min(1280px, calc((100vh - 40px) * 1.7778));margin:0 auto;padding:
 .pe-caption span { display: inline; padding: .28em .7em; box-decoration-break: clone; -webkit-box-decoration-break: clone; border-radius: .32em;
   background: var(--caption); color: var(--captionText); }
 .pe-caption.block span { border-radius: 0; }
+.pe-caption span.l2 { font-size: .86em; font-weight: 500; font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", "WenQuanYi Zen Hei", var(--f-body); }
+.pe-caption br { line-height: 2.1; }
 .pe-caption.hidden { opacity: 0 !important; }
 
 .pe-timeline { position: absolute; left: 4.5%; right: 4.5%; height: 34px; pointer-events: none; font-family: var(--f-body); }
@@ -405,7 +407,8 @@ main{max-width:min(1280px, calc((100vh - 40px) * 1.7778));margin:0 auto;padding:
       el.id = el.id || `e${els.length}`;
       const inn = typeof el.in === 'string' ? { fx: el.in } : Object.assign({}, el.in || {});
       el.inFx = inn.fx || (parent ? 'none' : 'fade'); el.inDur = inn.dur != null ? inn.dur : 0.6; el.inEase = inn.ease;
-      el.t0 = parent && el.at == null && inn.at == null ? parent.t0 : time(inn.at != null ? inn.at : el.at, sc, sc.start + 0.25);
+      const elAt = Array.isArray(el.at) ? null : el.at; // (legacy: angle used `at` for its vertex)
+      el.t0 = parent && elAt == null && inn.at == null ? parent.t0 : time(inn.at != null ? inn.at : elAt, sc, sc.start + 0.25);
       const out = typeof el.out === 'string' ? { fx: el.out } : Object.assign({}, el.out || {});
       el.outFx = out.fx || 'fade'; el.outDur = out.dur != null ? out.dur : 0.35;
       let endT = sc.end;
@@ -457,8 +460,15 @@ main{max-width:min(1280px, calc((100vh - 40px) * 1.7778));margin:0 auto;padding:
     const col = (c, d) => (c == null ? (P[d] || d) : (P[c] || c));
     const reduceMQ = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
     const prefs = loadPrefs();
-    const S = { t: 0, playing: false, rate: prefs.rate || 1, captions: prefs.captions != null ? prefs.captions : meta.captions !== false, capSize: prefs.capSize || 'M',
+    // subtitle tracks: primary = narration language; extra tracks come from cue.tr = { zh: "…" }
+    const trCodes = [...new Set(C.cues.flatMap((c) => Object.keys(c.tr || {})))];
+    const primary = (meta.language || 'en').slice(0, 2);
+    const LANG_LABEL = { en: 'English', zh: '中文', es: 'Español', fr: 'Français', de: 'Deutsch', ja: '日本語', ko: '한국어', pt: 'Português' };
+    const SUB_MODES = trCodes.length ? ['both', primary, ...trCodes, 'off'] : [primary, 'off'];
+    const subLabel = (m) => (m === 'both' ? [primary, ...trCodes].map((c) => LANG_LABEL[c] || c).join(' + ') : m === 'off' ? 'Off' : LANG_LABEL[m] || m);
+    const S = { t: 0, playing: false, rate: prefs.rate || 1, subMode: SUB_MODES.includes(prefs.subMode) ? prefs.subMode : (meta.captions === false ? 'off' : (meta.subtitleDefault && SUB_MODES.includes(meta.subtitleDefault) ? meta.subtitleDefault : SUB_MODES[0])), capSize: prefs.capSize || 'M',
       reduce: prefs.reduce != null ? prefs.reduce : reduceMQ.matches, ended: false, started: false };
+    Object.defineProperty(S, 'captions', { get: () => S.subMode !== 'off' });
 
     // ---- DOM
     root.classList.add('pe-player'); root.tabIndex = 0; root.setAttribute('role', 'region');
@@ -624,7 +634,9 @@ main{max-width:min(1280px, calc((100vh - 40px) * 1.7778));margin:0 auto;padding:
       if (!pts || pts.length < 2) return '';
       const dense = st.smooth === false ? pts : sampleSmooth(pts, 16), L = polyLen(dense);
       const lanes = st.lanes || [0], spacing = st.spacing || 120, speed = (st.speed || 90) * (S.reduce ? 0.4 : 1), c = col(st.color, '#ffffff'), sz = st.size || 16;
-      const shift = ((t - el.t0) * speed) % spacing;
+      let dist = (t - el.t0) * speed;
+      if (el.keysR.some((k) => k.speed != null)) { const n = Math.min(240, Math.max(2, Math.ceil((t - el.t0) * 12))); dist = 0; for (let i = 0; i < n; i++) { const tau = el.t0 + ((i + 0.5) / n) * (t - el.t0); dist += propsAt(el, tau).speed * (S.reduce ? 0.4 : 1) * ((t - el.t0) / n); } }
+      const shift = ((dist % spacing) + spacing) % spacing;
       let s = '';
       lanes.forEach((off, li) => {
         const lp = off ? offsetPoly(dense, off) : dense; const LL = polyLen(lp);
@@ -643,7 +655,7 @@ main{max-width:min(1280px, calc((100vh - 40px) * 1.7778));margin:0 auto;padding:
       return s;
     };
     R.angle = (st, el, fx) => { // coloured wedge at a vertex + letter badge
-      const [vx, vy] = st.at || [0, 0], r = st.r || 46; const a0 = -(st.from || 0) * Math.PI / 180; let a1 = -(st.to || 60) * Math.PI / 180;
+      const [vx, vy] = st.vertex || (Array.isArray(st.at) ? st.at : [0, 0]), r = st.r || 46; const a0 = -(st.from || 0) * Math.PI / 180; let a1 = -(st.to || 60) * Math.PI / 180;
       a1 = a0 + (a1 - a0) * fx.grow;
       const large = Math.abs(a1 - a0) > Math.PI ? 1 : 0, sweep = a1 < a0 ? 0 : 1;
       const d = `M${f(vx)},${f(vy)}L${f(vx + Math.cos(a0) * r)},${f(vy + Math.sin(a0) * r)}A${r},${r} 0 ${large} ${sweep} ${f(vx + Math.cos(a1) * r)},${f(vy + Math.sin(a1) * r)}Z`;
@@ -770,8 +782,8 @@ main{max-width:min(1280px, calc((100vh - 40px) * 1.7778));margin:0 auto;padding:
       if (el._vis !== true) { el._g.removeAttribute('display'); el._vis = true; }
       const st = propsAt(el, t), fx = fxAt(el, t);
       const geo = ['poly', 'curve', 'arrow', 'line', 'band', 'flow', 'angle', 'path', 'scatter', 'seq'].includes(el.type);
-      const ox = geo ? (el.origin ? el.origin[0] : (st.points ? centroid(st.points)[0] : (st.at ? st.at[0] : 0))) : 0;
-      const oy = geo ? (el.origin ? el.origin[1] : (st.points ? centroid(st.points)[1] : (st.at ? st.at[1] : 0))) : 0;
+      const ox = geo ? (el.origin ? el.origin[0] : (st.points ? centroid(st.points)[0] : (st.vertex ? st.vertex[0] : 0))) : 0;
+      const oy = geo ? (el.origin ? el.origin[1] : (st.points ? centroid(st.points)[1] : (st.vertex ? st.vertex[1] : 0))) : 0;
       const tx = st.x + fx.dx, ty = st.y + fx.dy, rot = st.rotate + fx.r, sc = st.scale * fx.s;
       el._g.setAttribute('transform', `translate(${f(tx + ox)},${f(ty + oy)}) rotate(${f(rot)}) scale(${f3(sc * fx.sx)},${f3(sc)}) translate(${f(-ox)},${f(-oy)})` + (fx.sx !== 1 ? '' : ''));
       el._g.setAttribute('opacity', f3(clamp(st.opacity * fx.o)));
@@ -891,11 +903,17 @@ main{max-width:min(1280px, calc((100vh - 40px) * 1.7778));margin:0 auto;padding:
     function updateCaption(t) {
       const c = cueAt(t);
       if (c !== capCue) {
-        capCue = c; capEl.innerHTML = c ? `<span>${esc(c.caption || c.say)}</span>` : '';
+        capCue = c; capEl.innerHTML = c ? capHTML(c) : '';
         if (c && S.captions) live.textContent = ''; // live region is fed by speech-off mode only (avoid double voice)
         updateTranscriptHL();
       }
       capEl.classList.toggle('hidden', !S.captions || !c);
+    }
+    function capHTML(c) {
+      const main = c.caption || c.say, lines = [];
+      if (S.subMode === 'both' || S.subMode === primary) lines.push(`<span class="l1">${esc(main)}</span>`);
+      (S.subMode === 'both' ? trCodes : trCodes.filter((k) => k === S.subMode)).forEach((k) => { if (c.tr && c.tr[k]) lines.push(`<span class="l2" lang="${k}">${esc(c.tr[k])}</span>`); });
+      return lines.join('<br>');
     }
     function applyCapStyle() {
       const base = { S: 0.015, M: 0.019, L: 0.025 }[S.capSize] || 0.019;
@@ -1074,8 +1092,11 @@ main{max-width:min(1280px, calc((100vh - 40px) * 1.7778));margin:0 auto;padding:
     scrubWrap.addEventListener('mousemove', (e) => { const r = scrubWrap.getBoundingClientRect(); const k = clamp((e.clientX - r.left) / r.width); tip.style.left = k * 100 + '%'; tip.textContent = `${fmtTime(k * C.total)} · ${chapterName(k * C.total) || ''}`; });
     $('[data-play]').onclick = toggle; $('[data-bigplay]').onclick = () => { play(); root.focus({ preventScroll: true }); }; $('[data-replay]').onclick = () => { seek(0); play(); }; $('[data-replay2]').onclick = () => { seek(0); play(); };
     $('[data-back]').onclick = () => seek(S.t - 5); $('[data-fwd]').onclick = () => seek(S.t + 5);
-    const ccBtn = $('[data-cc]'); const setCC = (v) => { S.captions = v; ccBtn.setAttribute('aria-pressed', String(v)); applyCapStyle(); updateCaption(S.t); savePrefs(); };
-    ccBtn.onclick = () => { setCC(!S.captions); toast(S.captions ? 'Subtitles on' : 'Subtitles off'); }; setCC(S.captions);
+    const ccBtn = $('[data-cc]');
+    const setSub = (m) => { S.subMode = m; ccBtn.setAttribute('aria-pressed', String(m !== 'off')); ccBtn.setAttribute('aria-label', 'Subtitles: ' + subLabel(m));
+      ccBtn.innerHTML = 'CC' + (m === 'off' ? '' : `<small style="font-size:9px;margin-left:3px;opacity:.85">${m === 'both' ? [primary, ...trCodes].map((x) => x.toUpperCase()).join('+') : m.toUpperCase()}</small>`);
+      capCue = null; applyCapStyle(); updateCaption(S.t); savePrefs(); };
+    ccBtn.onclick = () => { setSub(SUB_MODES[(SUB_MODES.indexOf(S.subMode) + 1) % SUB_MODES.length]); toast('Subtitles: ' + subLabel(S.subMode)); }; setSub(S.subMode);
     const voiceBtn = $('[data-voice]'); const setVoice = (v) => { A.voiceOn = v; voiceBtn.setAttribute('aria-pressed', String(v)); if (!v) narrStop(); savePrefs(); };
     voiceBtn.onclick = () => { setVoice(!A.voiceOn); toast(A.voiceOn ? 'Narration on' : 'Narration off'); }; setVoice(A.voiceOn);
     if (A.mode === 'off') { voiceBtn.disabled = true; voiceBtn.title = 'No narration available in this browser'; }
@@ -1087,24 +1108,24 @@ main{max-width:min(1280px, calc((100vh - 40px) * 1.7778));margin:0 auto;padding:
     rateBtn.onclick = () => { setRate(RATES[(RATES.indexOf(S.rate) + 1) % RATES.length]); toast('Speed ' + S.rate + '×'); };
     $('[data-fs]').onclick = () => { if (document.fullscreenElement) document.exitFullscreen(); else if (root.requestFullscreen) root.requestFullscreen(); };
     const trEl = $('.pe-transcript');
-    function buildTranscript() { trEl.innerHTML = `<h3>Transcript <button class="pe-btn" data-trclose aria-label="Close transcript">✕</button></h3>` + C.scenes.map((sc) => `<h5>${esc(sc.kicker || '')}${sc.kicker && sc.title ? ' · ' : ''}${esc((sc.title || '').replace(/\n/g, ' '))}</h5>` + sc.cues.map((c) => `<p tabindex="0" role="button" data-t="${c.t0}">${esc(c.caption || c.say)}</p>`).join('')).join('');
+    function buildTranscript() { trEl.innerHTML = `<h3>Transcript <button class="pe-btn" data-trclose aria-label="Close transcript">✕</button></h3>` + C.scenes.map((sc) => `<h5>${esc(sc.kicker || '')}${sc.kicker && sc.title ? ' · ' : ''}${esc((sc.title || '').replace(/\n/g, ' '))}</h5>` + sc.cues.map((c) => `<p tabindex="0" role="button" data-t="${c.t0}">${esc(c.caption || c.say)}${trCodes.map((k) => (c.tr && c.tr[k] ? `<br><span lang="${k}" style="opacity:.72">${esc(c.tr[k])}</span>` : '')).join('')}</p>`).join('')).join('');
       trEl.querySelector('[data-trclose]').onclick = () => toggleTranscript(false);
       trEl.querySelectorAll('p').forEach((p) => { const go = () => { seek(parseFloat(p.dataset.t)); if (!S.playing) render(S.t); }; p.onclick = go; p.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } }; }); }
     function updateTranscriptHL() { if (!trEl.classList.contains('open')) return; trEl.querySelectorAll('p').forEach((p) => p.classList.toggle('on', capCue && Math.abs(parseFloat(p.dataset.t) - capCue.t0) < 1e-6)); }
     function toggleTranscript(v) { const open = v != null ? v : !trEl.classList.contains('open'); trEl.classList.toggle('open', open); $('[data-tr]').setAttribute('aria-pressed', String(open)); if (open) { buildTranscript(); updateTranscriptHL(); trEl.querySelector('p') && trEl.querySelector('[data-trclose]').focus(); } }
     $('[data-tr]').onclick = () => toggleTranscript(); $('[data-trans2]').onclick = () => toggleTranscript(true);
-    $('[data-vtt]').onclick = () => { const v = 'WEBVTT\n\n' + C.cues.map((c, i) => `${i + 1}\n${vttT(c.t0)} --> ${vttT(c.t1)}\n${c.caption || c.say}\n`).join('\n'); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([v], { type: 'text/vtt' })); a.download = (meta.slug || 'captions') + '.vtt'; a.click(); };
+    $('[data-vtt]').onclick = () => { const v = 'WEBVTT\n\n' + C.cues.map((c, i) => `${i + 1}\n${vttT(c.t0)} --> ${vttT(c.t1)}\n${c.caption || c.say}${trCodes.map((k) => (c.tr && c.tr[k] ? '\n' + c.tr[k] : '')).join('')}\n`).join('\n'); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([v], { type: 'text/vtt' })); a.download = (meta.slug || 'captions') + '.vtt'; a.click(); };
     const vttT = (s) => { const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = (s % 60).toFixed(3); return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${r.padStart(6, '0')}`; };
     const menu = $('.pe-menu');
     function buildMenu() {
       const opt = (group, val, label, on) => `<button class="opt" role="menuitemradio" aria-checked="${on}" data-g="${group}" data-v="${val}">${label}</button>`;
       let voicesHtml = '';
       if (A.mode === 'speech' && window.speechSynthesis) { const vs = speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith((meta.language || 'en').slice(0, 2).toLowerCase())); const cur = pickVoice(); voicesHtml = `<h4>Voice</h4><select data-voicesel aria-label="Narration voice">${vs.map((v) => `<option ${cur && cur.name === v.name ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</select>`; }
-      menu.innerHTML = `<h4>Subtitle size</h4><div class="opts">${['S', 'M', 'L'].map((s) => opt('cap', s, s, S.capSize === s)).join('')}</div>
+      menu.innerHTML = `<h4>Subtitles</h4><div class="opts">${SUB_MODES.map((m) => opt('sub', m, subLabel(m), S.subMode === m)).join('')}</div><h4>Subtitle size</h4><div class="opts">${['S', 'M', 'L'].map((s) => opt('cap', s, s, S.capSize === s)).join('')}</div>
         <h4>Speed</h4><div class="opts">${RATES.map((r) => opt('rate', r, r + '×', S.rate === r)).join('')}</div>${voicesHtml}
         <h4>Accessibility</h4><label><input type="checkbox" data-reduce ${S.reduce ? 'checked' : ''}> Reduce motion</label>
         <h4>Narration source</h4><div style="opacity:.8">${A.mode === 'files' ? 'Recorded voice track' : A.mode === 'speech' ? 'Browser speech (pick a voice above)' : 'Not available — captions only'}</div>`;
-      menu.querySelectorAll('button.opt').forEach((b) => (b.onclick = () => { if (b.dataset.g === 'cap') { S.capSize = b.dataset.v; applyCapStyle(); savePrefs(); } else setRate(parseFloat(b.dataset.v)); buildMenu(); }));
+      menu.querySelectorAll('button.opt').forEach((b) => (b.onclick = () => { if (b.dataset.g === 'cap') { S.capSize = b.dataset.v; applyCapStyle(); savePrefs(); } else if (b.dataset.g === 'sub') setSub(b.dataset.v); else setRate(parseFloat(b.dataset.v)); buildMenu(); }));
       const vs = menu.querySelector('[data-voicesel]'); if (vs) vs.onchange = () => { A.voiceName = vs.value; savePrefs(); toast('Voice: ' + vs.value); };
       menu.querySelector('[data-reduce]').onchange = (e) => { S.reduce = e.target.checked; savePrefs(); render(S.t); };
     }
@@ -1135,7 +1156,7 @@ main{max-width:min(1280px, calc((100vh - 40px) * 1.7778));margin:0 auto;padding:
     const toastEl = $('.pe-toast'); let toastT = 0; function toast(m) { toastEl.textContent = m; toastEl.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('show'), 1100); }
     function announce(m) { live.textContent = m; }
     function loadPrefs() { try { return JSON.parse(localStorage.getItem('pe-prefs') || '{}'); } catch (e) { return {}; } }
-    function savePrefs() { try { localStorage.setItem('pe-prefs', JSON.stringify({ captions: S.captions, capSize: S.capSize, rate: S.rate, volume: A.volume, voice: A.voiceOn, music: A.musicOn, reduce: S.reduce, voiceName: A.voiceName })); } catch (e) {} }
+    function savePrefs() { try { localStorage.setItem('pe-prefs', JSON.stringify({ subMode: S.subMode, capSize: S.capSize, rate: S.rate, volume: A.volume, voice: A.voiceOn, music: A.musicOn, reduce: S.reduce, voiceName: A.voiceName })); } catch (e) {} }
 
     // poster + end screen text
     $('[data-poster] .o-title').textContent = meta.title; $('[data-poster] .o-meta').textContent = `${fmtTime(C.total)} · ${meta.audience ? meta.audience + ' · ' : ''}Press Space to play`;
