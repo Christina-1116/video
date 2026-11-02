@@ -1,0 +1,785 @@
+{
+ "meta": {
+  "title": "How does a river build new land?",
+  "topic": "How river deltas form",
+  "audience": "Middle-school geography",
+  "language": "en-US",
+  "style": "papermap",
+  "format": "16:9",
+  "music": {
+   "mood": "warm",
+   "volume": 0.17
+  },
+  "voice": {
+   "rate": 1.0,
+   "prefer": [
+    "Jenny",
+    "Aria",
+    "Natural",
+    "Samantha",
+    "Google US English"
+   ]
+  },
+  "credit": "Paper Explainer · paper-map style"
+ },
+ "scenes": [
+  {
+   "id": "intro",
+   "title": "How does a river build new land?",
+   "titlePos": "top",
+   "titleSize": 66,
+   "camera": [
+    {
+     "at": 0,
+     "zoom": 0.9,
+     "dur": 0.01
+    }
+   ],
+   "cues": [
+    {
+     "say": "How does a river build new land?"
+    },
+    {
+     "say": "It all happens where a river meets the sea."
+    }
+   ],
+   "elements": [
+    {
+     "id": "sea",
+     "type": "poly",
+     "smooth": true,
+     "points": [
+      [
+       1020,
+       -40
+      ],
+      [
+       1660,
+       -40
+      ],
+      [
+       1660,
+       940
+      ],
+      [
+       1000,
+       940
+      ],
+      [
+       975,
+       700
+      ],
+      [
+       1010,
+       470
+      ],
+      [
+       985,
+       230
+      ]
+     ],
+     "fill": "water",
+     "shadow": 0.6,
+     "until": "end",
+     "in": {
+      "fx": "fade",
+      "at": 0.2,
+      "dur": 1.0
+     }
+    },
+    {
+     "id": "swell1",
+     "type": "curve",
+     "points": [
+      [
+       1150,
+       180
+      ],
+      [
+       1300,
+       165
+      ],
+      [
+       1450,
+       185
+      ]
+     ],
+     "color": "#ffffff",
+     "width": 3,
+     "opacity": 0.35,
+     "until": "end",
+     "in": {
+      "fx": "draw",
+      "at": 0.8
+     }
+    },
+    {
+     "id": "swell2",
+     "type": "curve",
+     "points": [
+      [
+       1230,
+       760
+      ],
+      [
+       1380,
+       745
+      ],
+      [
+       1530,
+       765
+      ]
+     ],
+     "color": "#ffffff",
+     "width": 3,
+     "opacity": 0.35,
+     "until": "end",
+     "in": {
+      "fx": "draw",
+      "at": 1.0
+     }
+    },
+    {
+     "id": "treesTop",
+     "type": "scatter",
+     "glyph": "tree",
+     "region": [
+      70,
+      60,
+      860,
+      120
+     ],
+     "count": 14,
+     "seed": 4,
+     "until": "end",
+     "in": {
+      "fx": "fade",
+      "at": 0.3
+     }
+    },
+    {
+     "id": "treesBot",
+     "type": "scatter",
+     "glyph": "tree",
+     "region": [
+      70,
+      720,
+      860,
+      110
+     ],
+     "count": 12,
+     "seed": 9,
+     "until": "end",
+     "in": {
+      "fx": "fade",
+      "at": 0.5
+     }
+    },
+    {
+     "id": "river",
+     "type": "band",
+     "points": [
+      [
+       -40,
+       470
+      ],
+      [
+       300,
+       430
+      ],
+      [
+       600,
+       500
+      ],
+      [
+       860,
+       450
+      ],
+      [
+       1005,
+       470
+      ]
+     ],
+     "width": 72,
+     "fill": "water",
+     "edge": "bank",
+     "edgeWidth": 11,
+     "lanes": 2,
+     "until": "end",
+     "in": {
+      "fx": "grow",
+      "at": "c2",
+      "dur": 2.2
+     }
+    },
+    {
+     "id": "arrows",
+     "type": "flow",
+     "along": "river",
+     "lanes": [
+      -16,
+      16
+     ],
+     "glyph": "arrow",
+     "size": 13,
+     "color": "#ffffff",
+     "spacing": 120,
+     "speed": 130,
+     "until": "end",
+     "in": {
+      "fx": "grow",
+      "at": "c2+1.6",
+      "dur": 1.2
+     },
+     "keys": [
+      {
+       "at": "coast:c1",
+       "dur": 2.0,
+       "speed": 55
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "load",
+   "title": "Fast water carries a heavy load",
+   "camera": {
+    "zoom": 1.04,
+    "dur": 1.6
+   },
+   "cues": [
+    {
+     "say": "Fast-moving water can carry sand and silt a long way."
+    }
+   ],
+   "elements": [
+    {
+     "id": "silt",
+     "type": "flow",
+     "along": "river",
+     "lanes": [
+      0
+     ],
+     "glyph": "dot",
+     "size": 9,
+     "color": "sand",
+     "spacing": 46,
+     "speed": 115,
+     "until": "end",
+     "in": {
+      "fx": "grow",
+      "at": 0.4,
+      "dur": 1.0
+     },
+     "keys": [
+      {
+       "at": "coast:c1",
+       "dur": 2.0,
+       "speed": 40
+      }
+     ]
+    },
+    {
+     "id": "lblFast",
+     "type": "label",
+     "x": 470,
+     "y": 300,
+     "anchor": [
+      460,
+      455
+     ],
+     "text": "Fast water",
+     "sub": "carries sand and silt",
+     "bar": "accent2",
+     "in": {
+      "fx": "fade",
+      "at": "c1+0.6"
+     }
+    }
+   ]
+  },
+  {
+   "id": "coast",
+   "title": "At the coast, it slows down",
+   "camera": {
+    "x": 1010,
+    "y": 470,
+    "zoom": 1.55,
+    "dur": 1.8
+   },
+   "cues": [
+    {
+     "say": "At the coast, the water spreads out and slows down."
+    },
+    {
+     "say": "Slow water can't hold its load, so the sand settles."
+    }
+   ],
+   "elements": [
+    {
+     "id": "fan",
+     "type": "poly",
+     "smooth": true,
+     "points": [
+      [
+       985,
+       432
+      ],
+      [
+       1030,
+       418
+      ],
+      [
+       1068,
+       440
+      ],
+      [
+       1084,
+       470
+      ],
+      [
+       1068,
+       500
+      ],
+      [
+       1030,
+       522
+      ],
+      [
+       985,
+       508
+      ],
+      [
+       976,
+       470
+      ]
+     ],
+     "fill": "sand",
+     "shadow": 0.5,
+     "until": "end",
+     "z": 0.5,
+     "in": {
+      "fx": "pop",
+      "at": "c2+0.2",
+      "dur": 0.9
+     },
+     "keys": [
+      {
+       "at": "years:c1",
+       "dur": 4.5,
+       "ease": "inOut",
+       "points": [
+        [
+         978,
+         352
+        ],
+        [
+         1085,
+         322
+        ],
+        [
+         1190,
+         388
+        ],
+        [
+         1240,
+         470
+        ],
+        [
+         1190,
+         560
+        ],
+        [
+         1085,
+         615
+        ],
+        [
+         978,
+         585
+        ],
+        [
+         958,
+         470
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "id": "lblSlow",
+     "type": "label",
+     "x": 1130,
+     "y": 340,
+     "anchor": [
+      1035,
+      455
+     ],
+     "text": "Slower water",
+     "sub": "drops sand and silt",
+     "bar": "accent",
+     "in": {
+      "fx": "fade",
+      "at": "c1+0.8"
+     },
+     "out": {
+      "fx": "fade",
+      "at": "split:start"
+     },
+     "until": "split"
+    }
+   ]
+  },
+  {
+   "id": "split",
+   "title": "The channel splits",
+   "camera": {
+    "x": 1060,
+    "y": 470,
+    "zoom": 1.45,
+    "dur": 1.2
+   },
+   "cues": [
+    {
+     "say": "The new sand blocks the channel."
+    },
+    {
+     "say": "So the river splits and flows around it."
+    }
+   ],
+   "elements": [
+    {
+     "id": "br1",
+     "type": "band",
+     "points": [
+      [
+       1000,
+       468
+      ],
+      [
+       1060,
+       430
+      ],
+      [
+       1120,
+       395
+      ],
+      [
+       1180,
+       368
+      ]
+     ],
+     "width": 24,
+     "fill": "water",
+     "edge": "bank",
+     "edgeWidth": 5,
+     "until": "end",
+     "z": 1,
+     "in": {
+      "fx": "grow",
+      "at": "c2",
+      "dur": 1.3
+     }
+    },
+    {
+     "id": "br2",
+     "type": "band",
+     "points": [
+      [
+       1000,
+       472
+      ],
+      [
+       1060,
+       510
+      ],
+      [
+       1120,
+       545
+      ],
+      [
+       1180,
+       575
+      ]
+     ],
+     "width": 24,
+     "fill": "water",
+     "edge": "bank",
+     "edgeWidth": 5,
+     "until": "end",
+     "z": 1,
+     "in": {
+      "fx": "grow",
+      "at": "c2+0.3",
+      "dur": 1.3
+     }
+    },
+    {
+     "id": "brArrows",
+     "type": "flow",
+     "points": [
+      [
+       1000,
+       468
+      ],
+      [
+       1060,
+       430
+      ],
+      [
+       1120,
+       395
+      ],
+      [
+       1180,
+       368
+      ]
+     ],
+     "glyph": "chevron",
+     "size": 9,
+     "color": "#ffffff",
+     "spacing": 55,
+     "speed": 45,
+     "until": "end",
+     "z": 2,
+     "in": {
+      "fx": "grow",
+      "at": "c2+1.2"
+     }
+    },
+    {
+     "id": "brArrows2",
+     "type": "flow",
+     "points": [
+      [
+       1000,
+       472
+      ],
+      [
+       1060,
+       510
+      ],
+      [
+       1120,
+       545
+      ],
+      [
+       1180,
+       575
+      ]
+     ],
+     "glyph": "chevron",
+     "size": 9,
+     "color": "#ffffff",
+     "spacing": 55,
+     "speed": 45,
+     "until": "end",
+     "z": 2,
+     "in": {
+      "fx": "grow",
+      "at": "c2+1.4"
+     }
+    }
+   ]
+  },
+  {
+   "id": "years",
+   "title": "Year after year, the land grows",
+   "camera": {
+    "x": 960,
+    "y": 470,
+    "zoom": 1.12,
+    "dur": 1.8
+   },
+   "cues": [
+    {
+     "say": "Year after year, each branch drops more sand."
+    },
+    {
+     "say": "The land slowly creeps out into the sea."
+    }
+   ],
+   "elements": [
+    {
+     "id": "oldCoast",
+     "type": "curve",
+     "points": [
+      [
+       985,
+       230
+      ],
+      [
+       1010,
+       470
+      ],
+      [
+       975,
+       700
+      ]
+     ],
+     "color": "ink",
+     "width": 2.5,
+     "dashed": "8 8",
+     "until": "end",
+     "z": 3,
+     "in": {
+      "fx": "draw",
+      "at": "c1+0.5",
+      "dur": 1.0
+     }
+    },
+    {
+     "id": "lblOld",
+     "type": "label",
+     "x": 780,
+     "y": 250,
+     "anchor": [
+      992,
+      300
+     ],
+     "text": "The old coastline",
+     "bar": "ink",
+     "in": {
+      "fx": "fade",
+      "at": "c2"
+     }
+    },
+    {
+     "id": "yrs",
+     "type": "counter",
+     "x": 1390,
+     "y": 150,
+     "fill": "card",
+     "font": "mono",
+     "size": 30,
+     "format": "{v} years",
+     "value": 0,
+     "until": "end",
+     "z": 4,
+     "in": {
+      "fx": "drop",
+      "at": "c1"
+     },
+     "keys": [
+      {
+       "at": "c1+0.2",
+       "dur": 5.0,
+       "ease": "linear",
+       "value": 1000
+      }
+     ]
+    },
+    {
+     "id": "br3",
+     "type": "band",
+     "points": [
+      [
+       1180,
+       368
+      ],
+      [
+       1215,
+       345
+      ],
+      [
+       1250,
+       330
+      ]
+     ],
+     "width": 18,
+     "fill": "water",
+     "edge": "bank",
+     "edgeWidth": 4,
+     "until": "end",
+     "z": 1,
+     "in": {
+      "fx": "grow",
+      "at": "c2",
+      "dur": 1.2
+     }
+    },
+    {
+     "id": "br4",
+     "type": "band",
+     "points": [
+      [
+       1180,
+       575
+      ],
+      [
+       1215,
+       600
+      ],
+      [
+       1250,
+       612
+      ]
+     ],
+     "width": 18,
+     "fill": "water",
+     "edge": "bank",
+     "edgeWidth": 4,
+     "until": "end",
+     "z": 1,
+     "in": {
+      "fx": "grow",
+      "at": "c2+0.3",
+      "dur": 1.2
+     }
+    }
+   ]
+  },
+  {
+   "id": "delta",
+   "title": "River → sand → delta",
+   "camera": {
+    "x": 800,
+    "y": 450,
+    "zoom": 1.0,
+    "dur": 1.6
+   },
+   "cues": [
+    {
+     "say": "That fan of new land is called a delta."
+    },
+    {
+     "say": "Many of the world's great cities are built on one."
+    }
+   ],
+   "tail": 1.2,
+   "elements": [
+    {
+     "id": "lblDelta",
+     "type": "label",
+     "x": 1300,
+     "y": 700,
+     "anchor": [
+      1130,
+      520
+     ],
+     "text": "Delta",
+     "sub": "new land built from river sand",
+     "bar": "accent",
+     "in": {
+      "fx": "fade",
+      "at": "c1+0.4"
+     }
+    },
+    {
+     "id": "city",
+     "type": "icon",
+     "name": "house",
+     "x": 1085,
+     "y": 455,
+     "size": 34,
+     "color": "ink",
+     "badge": "card",
+     "in": {
+      "fx": "pop",
+      "at": "c2+0.3"
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "title": "From Shells to Screens",
+    "topic": "A 3,000-year history of money in 45 seconds",
+    "audience": "Teens and adults, general audience",
+    "language": "en-US",
+    "style": "collage",
+    "format": "16:9",
+    "timeline": ["3000 BC", "600 BC", "1000s", "1600s", "1950s", "2010s", "Today"],
+    "music": { "mood": "documentary", "volume": 0.16 },
+    "voice": { "rate": 1.02, "prefer": ["Guy", "Daniel", "Natural", "Google US English"] },
+    "credit": "Paper Explainer · collage style"
+  },
+  "scenes": [
+    {
+      "id": "shells", "kicker": "About 3,000 years ago", "title": "Money was\nsomething you held.", "timeline": 0,
+      "cues": [
+        { "say": "Long before banks, people traded things they could hold." },
+        { "say": "Shells, salt and beads all worked as money." }
+      ],
+      "elements": [
+        { "id": "sq1", "type": "rect", "x": 1330, "y": 170, "w": 130, "h": 130, "rotate": 6, "fill": "accent2", "shadow": 0, "in": { "fx": "drop", "at": 0.6 } },
+        { "id": "bar1", "type": "rect", "x": 1290, "y": 262, "w": 210, "h": 12, "fill": "ink", "shadow": 0, "in": { "fx": "unfold", "at": 0.9 } },
+        { "id": "shell", "type": "group", "x": 1010, "y": 560, "sticker": true, "in": { "fx": "drop", "at": "c1+0.4", "dur": 0.8 }, "children": [
+          { "type": "circle", "r": 120, "fill": "#bdb8ae", "halftone": 0.5, "shadow": 0 },
+          { "type": "icon", "name": "shell", "size": 170, "color": "ink", "strokeWidth": 1.6 }
+        ] },
+        { "id": "salt", "type": "group", "x": 1330, "y": 610, "rotate": -8, "sticker": true, "in": { "fx": "drop", "at": "c2+0.6", "dur": 0.8 }, "children": [
+          { "type": "rect", "w": 150, "h": 110, "fill": "#e6e2da", "halftone": 0.35, "shadow": 0 },
+          { "type": "text", "text": "SALT", "size": 34, "font": "title", "weight": 800, "color": "ink" }
+        ] },
+        { "id": "beads", "type": "seq", "from": [700, 690], "to": [880, 640], "pattern": "ooooooo", "size": 20, "color": "accent2", "wave": 1, "amp": 12, "in": { "fx": "grow", "at": "c2+1.2", "dur": 1.0 } }
+      ]
+    },
+    {
+      "id": "coins", "kicker": "600 BC · Coins", "title": "Metal you\ncould count.", "bg": "accent", "timeline": 1,
+      "cues": [
+        { "say": "Then came coins." },
+        { "say": "Small, tough, and stamped with a promise of value." }
+      ],
+      "elements": [
+        { "id": "coinBig", "type": "group", "x": 1080, "y": 430, "rotate": -6, "sticker": true, "in": { "fx": "slide-right", "at": 0.5, "dur": 0.9 }, "children": [
+          { "type": "circle", "r": 190, "fill": "#a9a49b", "halftone": 0.55, "shadow": 0 },
+          { "type": "circle", "r": 150, "fill": "#c9c4ba", "halftone": 0.35, "shadow": 0 },
+          { "type": "icon", "name": "coin", "size": 190, "color": "ink", "strokeWidth": 1.4 }
+        ] },
+        { "id": "stack", "type": "group", "x": 1400, "y": 640, "sticker": true, "in": { "fx": "drop", "at": "c2+0.5" }, "children": [
+          { "type": "rect", "y": 40, "w": 150, "h": 34, "rx": 16, "fill": "#b9b4ab", "halftone": 0.45, "shadow": 0 },
+          { "type": "rect", "y": 4, "w": 150, "h": 34, "rx": 16, "fill": "#c9c4ba", "halftone": 0.45, "shadow": 0 },
+          { "type": "rect", "y": -32, "w": 150, "h": 34, "rx": 16, "fill": "#b9b4ab", "halftone": 0.45, "shadow": 0 }
+        ] },
+        { "id": "ul2", "type": "rect", "x": 300, "y": 470, "w": 360, "h": 14, "fill": "ink", "shadow": 0, "in": { "fx": "unfold", "at": "c2" } },
+        { "id": "tealbar", "type": "rect", "x": 980, "y": 690, "w": 420, "h": 22, "rotate": -2, "fill": "accent2", "shadow": 0, "in": { "fx": "unfold", "at": "c2+0.3" } }
+      ]
+    },
+    {
+      "id": "paper", "kicker": "1000s · Paper money", "title": "A promise\non paper.", "bg": "ink", "timeline": 2, "titleFill": "accent",
+      "cues": [
+        { "say": "Paper notes were lighter than metal." },
+        { "say": "Each one was a written promise to pay." }
+      ],
+      "elements": [
+        { "id": "note", "type": "group", "x": 1060, "y": 470, "rotate": 4, "sticker": true, "in": { "fx": "drop", "at": 0.5, "dur": 0.9 }, "children": [
+          { "type": "rect", "w": 520, "h": 260, "fill": "#d7d2c8", "halftone": 0.4, "shadow": 0 },
+          { "type": "rect", "w": 470, "h": 210, "fill": "none", "stroke": "ink", "strokeWidth": 3, "shadow": 0, "grain": false },
+          { "type": "circle", "x": -130, "r": 70, "fill": "#bdb8ae", "halftone": 0.6, "shadow": 0 },
+          { "type": "text", "x": 110, "y": -30, "text": "PROMISE", "size": 40, "font": "title", "weight": 800, "color": "ink" },
+          { "type": "text", "x": 110, "y": 30, "text": "TO PAY", "size": 30, "font": "mono", "color": "ink" }
+        ] },
+        { "id": "waves3", "type": "waves", "x": 760, "y": 310, "count": 3, "r": 40, "gap": 26, "color": "accent", "color2": "accent2", "in": { "fx": "grow", "at": "c2" } }
+      ]
+    },
+    {
+      "id": "banks", "kicker": "1600s · Banks", "title": "Money starts\nto travel.", "timeline": 3,
+      "cues": [
+        { "say": "Banks kept the gold safe." },
+        { "say": "Money moved through ledgers, not carts." }
+      ],
+      "elements": [
+        { "id": "bank", "type": "group", "x": 860, "y": 520, "sticker": true, "in": { "fx": "drop", "at": 0.5 }, "children": [
+          { "type": "rect", "w": 260, "h": 230, "fill": "#cfcac0", "halftone": 0.45, "shadow": 0 },
+          { "type": "icon", "name": "bank", "size": 200, "color": "ink", "strokeWidth": 1.5 }
+        ] },
+        { "id": "ledger", "type": "card", "x": 1380, "y": 470, "w": 250, "h": 300, "rotate": 5, "fill": "card", "number": "LEDGER", "body": "In: 120\nOut: 45\nBalance: 75", "in": { "fx": "drop", "at": "c2" } },
+        { "id": "route", "type": "curve", "points": [[1000, 470], [1120, 380], [1250, 420]], "color": "ink", "width": 4, "dashed": "10 10", "head": "end", "in": { "fx": "draw", "at": "c2+0.3", "dur": 0.9 } },
+        { "id": "dots", "type": "flow", "points": [[1000, 470], [1120, 380], [1250, 420]], "glyph": "dot", "size": 14, "color": "accent", "spacing": 70, "speed": 110, "in": { "fx": "fade", "at": "c2+1.1" } }
+      ]
+    },
+    {
+      "id": "cards", "kicker": "1950s · Cards", "title": "Pay with\na plastic card.", "bg": "accent2", "timeline": 4,
+      "cues": [
+        { "say": "Cards turned a signature into a payment." }
+      ],
+      "elements": [
+        { "id": "card", "type": "group", "x": 1090, "y": 470, "rotate": -9, "sticker": true, "in": { "fx": "slide-right", "at": 0.5, "dur": 0.9 }, "children": [
+          { "type": "rect", "w": 470, "h": 290, "rx": 26, "fill": "#2b2b2b", "halftone": 0.25, "shadow": 0 },
+          { "type": "rect", "y": -70, "w": 470, "h": 44, "fill": "#111111", "shadow": 0, "grain": false },
+          { "type": "rect", "x": -150, "y": 20, "w": 70, "h": 52, "rx": 8, "fill": "accent", "shadow": 0 },
+          { "type": "text", "x": 40, "y": 90, "text": "•••• 1958", "size": 34, "font": "mono", "color": "#e9e7e2" }
+        ] }
+      ]
+    },
+    {
+      "id": "phones", "kicker": "2010s · Phones", "title": "Money in\nyour pocket.", "timeline": 5,
+      "cues": [
+        { "say": "Now a phone can pay in a single tap." }
+      ],
+      "elements": [
+        { "id": "disc", "type": "circle", "x": 1080, "y": 470, "r": 250, "fill": "accent", "shadow": 0, "in": { "fx": "pop", "at": 0.3 } },
+        { "id": "tealpost", "type": "rect", "x": 1390, "y": 470, "w": 40, "h": 440, "fill": "accent2", "shadow": 0, "in": { "fx": "slide-up", "at": 0.4 } },
+        { "id": "phone", "type": "group", "x": 1080, "y": 470, "sticker": true, "in": { "fx": "rise", "at": 0.6, "dur": 0.8 }, "children": [
+          { "type": "rect", "w": 220, "h": 420, "rx": 34, "fill": "#232323", "halftone": 0.2, "shadow": 0 },
+          { "type": "rect", "w": 186, "h": 370, "rx": 20, "fill": "#3a3a3a", "shadow": 0, "grain": false },
+          { "type": "icon", "name": "check", "y": -40, "size": 90, "color": "accent", "strokeWidth": 2.6 },
+          { "type": "text", "y": 60, "text": "PAID", "size": 34, "font": "mono", "color": "#e9e7e2" }
+        ] },
+        { "id": "tap", "type": "waves", "x": 1240, "y": 360, "count": 3, "r": 34, "gap": 24, "from": 280, "to": 360, "color": "ink", "in": { "fx": "grow", "at": "c1+1.4" } }
+      ]
+    },
+    {
+      "id": "habits", "kicker": "Every step", "title": "Money got lighter.", "subtitle": "And these habits matter more:", "timeline": 6,
+      "cues": [
+        { "say": "Each step made money lighter and faster." },
+        { "say": "And made three habits matter more." }
+      ],
+      "elements": [
+        { "id": "sq7", "type": "rect", "x": 1400, "y": 170, "w": 140, "h": 140, "fill": "accent2", "shadow": 0, "until": "end", "in": { "fx": "drop", "at": 0.4 } },
+        { "id": "h1", "type": "card", "x": 340, "y": 610, "w": 330, "h": 240, "rotate": -2, "fill": "accent", "number": "01", "icon": "search", "title": "CHECK THE\nPRICE", "underline": true, "until": "end", "in": { "fx": "drop", "at": "c2+0.2" } },
+        { "id": "h2", "type": "card", "x": 720, "y": 600, "w": 330, "h": 240, "rotate": 1.5, "fill": "accent2", "number": "02", "icon": "lock", "title": "PROTECT\nYOUR PIN", "underline": "accent", "until": "end", "in": { "fx": "drop", "at": "c2+0.7" } },
+        { "id": "h3", "type": "card", "x": 1100, "y": 612, "w": 330, "h": 240, "rotate": -1, "fill": "ink", "number": "03", "icon": "bulb", "iconColor": "accent", "title": "THINK\nBEFORE YOU TAP", "size": 32, "underline": "accent", "until": "end", "in": { "fx": "drop", "at": "c2+1.2" } }
+      ]
+    },
+    {
+      "id": "end", "title": "From Shells to Screens.", "subtitle": "3,000 years → today", "timeline": 6,
+      "cues": [
+        { "say": "From shells to screens, money keeps changing shape." }
+      ],
+      "tail": 1.4,
+      "elements": []
+    }
+  ]
+}

@@ -1,0 +1,622 @@
+{
+ "meta": {
+  "title": "Why does a² + b² = c²?",
+  "topic": "A visual proof of the Pythagorean theorem",
+  "audience": "Curious learners, ages 12+",
+  "language": "en-US",
+  "style": "papercraft",
+  "format": "16:9",
+  "music": {
+   "mood": "calm",
+   "volume": 0.18
+  },
+  "voice": {
+   "rate": 1.0,
+   "prefer": [
+    "Natural",
+    "Aria",
+    "Jenny",
+    "Samantha",
+    "Google US English"
+   ]
+  },
+  "endTitle": "a² + b² = c² — rearranged, not calculated.",
+  "credit": "Paper Explainer · English narration"
+ },
+ "scenes": [
+  {
+   "id": "s1",
+   "title": "Why does a² + b² = c²?",
+   "cues": [
+    {
+     "say": "Take any right triangle."
+    },
+    {
+     "say": "Its two short sides are a and b. The long side is c."
+    }
+   ],
+   "elements": [
+    {
+     "id": "tri0",
+     "type": "poly",
+     "points": [
+      [
+       600,
+       630
+      ],
+      [
+       600,
+       330
+      ],
+      [
+       1000,
+       630
+      ]
+     ],
+     "fill": "paper",
+     "in": {
+      "fx": "draw",
+      "at": "c1",
+      "dur": 1.2
+     }
+    },
+    {
+     "id": "ra0",
+     "type": "poly",
+     "points": [
+      [
+       600,
+       630
+      ],
+      [
+       600,
+       594
+      ],
+      [
+       636,
+       594
+      ],
+      [
+       636,
+       630
+      ]
+     ],
+     "fill": "red",
+     "shadow": 0,
+     "in": {
+      "fx": "pop",
+      "at": "c1+0.9"
+     }
+    },
+    {
+     "id": "la",
+     "type": "tag",
+     "text": "a",
+     "x": 548,
+     "y": 480,
+     "fill": "blue",
+     "color": "#ffffff",
+     "size": 34,
+     "in": {
+      "fx": "pop",
+      "at": "c2"
+     }
+    },
+    {
+     "id": "lb",
+     "type": "tag",
+     "text": "b",
+     "x": 800,
+     "y": 682,
+     "fill": "accent",
+     "size": 34,
+     "in": {
+      "fx": "pop",
+      "at": "c2+0.4"
+     }
+    },
+    {
+     "id": "lc",
+     "type": "tag",
+     "text": "c",
+     "x": 840,
+     "y": 450,
+     "fill": "red",
+     "color": "#ffffff",
+     "size": 34,
+     "in": {
+      "fx": "pop",
+      "at": "c2+1.4"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s2",
+   "title": "Four copies, one big square",
+   "cues": [
+    {
+     "say": "Make four copies of it."
+    },
+    {
+     "say": "Fit them inside a square whose side is a plus b."
+    }
+   ],
+   "elements": [
+    {
+     "id": "frame",
+     "type": "poly",
+     "points": [
+      [
+       560,
+       230
+      ],
+      [
+       1040,
+       230
+      ],
+      [
+       1040,
+       710
+      ],
+      [
+       560,
+       710
+      ]
+     ],
+     "fill": "#efe6d8",
+     "shadow": 0.6,
+     "until": "end",
+     "in": {
+      "fx": "draw",
+      "at": "c2",
+      "dur": 1.1
+     }
+    },
+    {
+     "id": "T2",
+     "type": "poly",
+     "points": [
+      [
+       1040,
+       230
+      ],
+      [
+       1040,
+       410
+      ],
+      [
+       740,
+       230
+      ]
+     ],
+     "fill": "paper",
+     "until": "end",
+     "z": 2,
+     "in": {
+      "fx": "drop",
+      "at": "c1+0.2",
+      "dur": 0.8
+     }
+    },
+    {
+     "id": "T1",
+     "type": "poly",
+     "points": [
+      [
+       560,
+       230
+      ],
+      [
+       740,
+       230
+      ],
+      [
+       560,
+       530
+      ]
+     ],
+     "fill": "paper",
+     "until": "end",
+     "z": 2,
+     "in": {
+      "fx": "drop",
+      "at": "c1+0.5",
+      "dur": 0.8
+     },
+     "keys": [
+      {
+       "at": "s4:c1+0.3",
+       "dur": 1.4,
+       "y": 180
+      }
+     ]
+    },
+    {
+     "id": "T3",
+     "type": "poly",
+     "points": [
+      [
+       1040,
+       710
+      ],
+      [
+       860,
+       710
+      ],
+      [
+       1040,
+       410
+      ]
+     ],
+     "fill": "paper",
+     "until": "end",
+     "z": 2,
+     "in": {
+      "fx": "drop",
+      "at": "c1+0.8",
+      "dur": 0.8
+     },
+     "keys": [
+      {
+       "at": "s4:c1+1.0",
+       "dur": 1.4,
+       "x": -300
+      }
+     ]
+    },
+    {
+     "id": "T4",
+     "type": "poly",
+     "points": [
+      [
+       560,
+       710
+      ],
+      [
+       560,
+       530
+      ],
+      [
+       860,
+       710
+      ]
+     ],
+     "fill": "paper",
+     "until": "end",
+     "z": 2,
+     "in": {
+      "fx": "drop",
+      "at": "c1+1.1",
+      "dur": 0.8
+     },
+     "keys": [
+      {
+       "at": "s4:c2",
+       "dur": 1.6,
+       "x": 180,
+       "y": -300
+      }
+     ]
+    },
+    {
+     "id": "side1",
+     "type": "tag",
+     "text": "a + b",
+     "x": 800,
+     "y": 186,
+     "fill": "card",
+     "size": 26,
+     "until": "s3",
+     "in": {
+      "fx": "rise",
+      "at": "c2+0.6"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "title": "The gap is a square: c²",
+   "cues": [
+    {
+     "say": "Look at the gap in the middle."
+    },
+    {
+     "say": "It is a square, and each of its sides is c."
+    },
+    {
+     "say": "So its area is c squared."
+    }
+   ],
+   "elements": [
+    {
+     "id": "gapc",
+     "type": "poly",
+     "points": [
+      [
+       740,
+       230
+      ],
+      [
+       1040,
+       410
+      ],
+      [
+       860,
+       710
+      ],
+      [
+       560,
+       530
+      ]
+     ],
+     "fill": "red",
+     "shadow": 0,
+     "z": 1,
+     "in": {
+      "fx": "fade",
+      "at": "c1+0.2",
+      "dur": 0.8
+     },
+     "out": {
+      "fx": "fade",
+      "at": "s4:c1"
+     },
+     "until": "s4"
+    },
+    {
+     "id": "gapline",
+     "type": "poly",
+     "points": [
+      [
+       740,
+       230
+      ],
+      [
+       1040,
+       410
+      ],
+      [
+       860,
+       710
+      ],
+      [
+       560,
+       530
+      ]
+     ],
+     "fill": "none",
+     "stroke": "ink",
+     "strokeWidth": 3,
+     "z": 3,
+     "in": {
+      "fx": "draw",
+      "at": "c2",
+      "dur": 1.4
+     }
+    },
+    {
+     "id": "cc",
+     "type": "tag",
+     "text": "c²",
+     "x": 800,
+     "y": 470,
+     "fill": "card",
+     "size": 52,
+     "z": 4,
+     "in": {
+      "fx": "stamp",
+      "at": "c3"
+     },
+     "until": "s4",
+     "out": {
+      "fx": "pop",
+      "at": "s4:c1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s4",
+   "title": "Same square. Same four pieces.",
+   "cues": [
+    {
+     "say": "Now slide the triangles into new spots."
+    },
+    {
+     "say": "Nothing is stretched or cut. The total area stays the same."
+    }
+   ],
+   "elements": []
+  },
+  {
+   "id": "s5",
+   "title": "Now the gap is a² + b²",
+   "cues": [
+    {
+     "say": "The empty space has changed shape."
+    },
+    {
+     "say": "It is now two squares: a squared, and b squared."
+    }
+   ],
+   "elements": [
+    {
+     "id": "sqa",
+     "type": "poly",
+     "points": [
+      [
+       560,
+       230
+      ],
+      [
+       740,
+       230
+      ],
+      [
+       740,
+       410
+      ],
+      [
+       560,
+       410
+      ]
+     ],
+     "fill": "blue",
+     "shadow": 0,
+     "z": 1,
+     "until": "end",
+     "in": {
+      "fx": "fade",
+      "at": "c2",
+      "dur": 0.7
+     }
+    },
+    {
+     "id": "sqb",
+     "type": "poly",
+     "points": [
+      [
+       740,
+       410
+      ],
+      [
+       1040,
+       410
+      ],
+      [
+       1040,
+       710
+      ],
+      [
+       740,
+       710
+      ]
+     ],
+     "fill": "accent",
+     "shadow": 0,
+     "z": 1,
+     "until": "end",
+     "in": {
+      "fx": "fade",
+      "at": "c2+0.5",
+      "dur": 0.7
+     }
+    },
+    {
+     "id": "ta",
+     "type": "tag",
+     "text": "a²",
+     "x": 650,
+     "y": 320,
+     "fill": "card",
+     "size": 40,
+     "z": 4,
+     "until": "end",
+     "in": {
+      "fx": "stamp",
+      "at": "c2+0.3"
+     }
+    },
+    {
+     "id": "tb",
+     "type": "tag",
+     "text": "b²",
+     "x": 890,
+     "y": 560,
+     "fill": "card",
+     "size": 48,
+     "z": 4,
+     "until": "end",
+     "in": {
+      "fx": "stamp",
+      "at": "c2+0.8"
+     }
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "title": "a² + b² = c²",
+   "cues": [
+    {
+     "say": "Both gaps fill the same space."
+    },
+    {
+     "say": "So a squared plus b squared must equal c squared."
+    },
+    {
+     "say": "No algebra needed. Just paper."
+    }
+   ],
+   "elements": [
+    {
+     "id": "eq",
+     "type": "tag",
+     "text": "a² + b² = c²",
+     "x": 1310,
+     "y": 470,
+     "fill": "accent",
+     "size": 46,
+     "rotate": -3,
+     "in": {
+      "fx": "stamp",
+      "at": "c2+0.4"
+     }
+    },
+    {
+     "id": "mini",
+     "type": "poly",
+     "points": [
+      [
+       1230,
+       600
+      ],
+      [
+       1230,
+       690
+      ],
+      [
+       1350,
+       690
+      ]
+     ],
+     "fill": "paper",
+     "in": {
+      "fx": "pop",
+      "at": "c3"
+     }
+    },
+    {
+     "id": "minira",
+     "type": "poly",
+     "points": [
+      [
+       1230,
+       690
+      ],
+      [
+       1230,
+       674
+      ],
+      [
+       1246,
+       674
+      ],
+      [
+       1246,
+       690
+      ]
+     ],
+     "fill": "red",
+     "shadow": 0,
+     "in": {
+      "fx": "pop",
+      "at": "c3+0.2"
+     }
+    }
+   ]
+  }
+ ]
+}
