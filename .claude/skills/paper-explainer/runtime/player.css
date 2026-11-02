@@ -28,6 +28,8 @@
 .pe-caption span { display: inline; padding: .28em .7em; box-decoration-break: clone; -webkit-box-decoration-break: clone; border-radius: .32em;
   background: var(--caption); color: var(--captionText); }
 .pe-caption.block span { border-radius: 0; }
+.pe-caption span.l2 { font-size: .86em; font-weight: 500; font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", "WenQuanYi Zen Hei", var(--f-body); }
+.pe-caption br { line-height: 2.1; }
 .pe-caption.hidden { opacity: 0 !important; }
 
 .pe-timeline { position: absolute; left: 4.5%; right: 4.5%; height: 34px; pointer-events: none; font-family: var(--f-body); }

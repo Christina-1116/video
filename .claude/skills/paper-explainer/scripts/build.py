@@ -41,7 +41,7 @@ def validate(story, base):
     lang = meta.get("language", "en-US")
 
     def chk_time(v, sc, where):
-        if v is None or isinstance(v, (int, float)):
+        if v is None or isinstance(v, (int, float, list)):
             return
         m = TIME_RE.match(str(v).strip())
         if not m:

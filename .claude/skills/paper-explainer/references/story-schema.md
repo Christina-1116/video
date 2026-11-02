@@ -16,7 +16,8 @@ stays in sync whatever voice reads it.
 | `timeline` | — | labels for the collage bottom timeline, e.g. `["1830s","1844",…,"Today"]` |
 | `music` | `{mood: style's, volume: .2}` | `mood`: `calm` `warm` `playful` `documentary` `upbeat` `none` (procedural Web-Audio score, ducks under the voice) |
 | `voice` | `{rate:1, pitch:1, prefer:[]}` | browser-speech voice ranking hints, e.g. `["Aria","Jenny","Natural","Samantha","Google US English"]` |
-| `ttsVoice` | — | edge-tts voice for `scripts/tts.py` (e.g. `en-US-AndrewNeural`) |
+| `ttsVoice` | `af_heart` | voice for `scripts/tts.py` (Kokoro: `af_heart` `am_michael` `bf_emma`…; edge: `en-US-AndrewNeural`) |
+| `subtitleDefault` | `both` when translations exist | starting subtitle mode: `both`, `en`, `zh`, … or `off` |
 | `cuePause` | 0.4 | silence after each sentence |
 | `posterAt`, `endTitle`, `credit`, `pageBg`, `slug` | — | poster frame time, end-screen line, footer text, page colour, caption file name |
 
@@ -25,10 +26,12 @@ stays in sync whatever voice reads it.
 { "id": "coins", "kicker": "600 BC · Coins", "title": "Metal you\ncould count.", "subtitle": "optional second line",
   "bg": "accent", "transition": "tear", "timeline": 1, "titlePos": "tl", "titleSize": 76, "titleVariant": "strip", "titleFill": "card",
   "camera": { "x": 1010, "y": 470, "zoom": 1.5, "dur": 1.8 },
-  "cues": [ { "say": "Then came coins." }, { "say": "Small, tough, and stamped with a promise.", "caption": "optional on-screen text", "audio": "voice/coins-2.mp3", "pause": 0.5 } ],
+  "cues": [ { "say": "Then came coins.", "tr": { "zh": "后来出现了硬币。" } },
+            { "say": "Small, tough, and stamped with a promise.", "caption": "optional on-screen text", "tr": { "zh": "小巧、耐用，还盖着价值的承诺。" }, "audio": "voice/coins-2.mp3", "pause": 0.5 } ],
   "lead": 0.45, "tail": 0.35,
   "elements": [ … ] }
 ```
+- `tr`: translated subtitle lines per language code (`zh`, `es`, …). Any `tr` turns on multi-language subtitles: the CC button cycles *all languages → each language → off*; transcript and .vtt include every language.
 - `title` uses `\n` for line breaks (lines rise in one by one). A title identical to the previous scene's stays put (no re-animation) — use that for multi-scene steps of one idea.
 - `bg`: palette key or hex. A colour change triggers the style's transition (`tear` for collage, `fade` otherwise); force with `transition`: `tear` `fade` `cut`.
 - `titlePos`: `tl` (default) · `top` · `center` · `bl`.
@@ -57,7 +60,7 @@ stays in sync whatever voice reads it.
 | `curve` / `arrow` / `line` | `points` or `from to bend`, `color width dashed head (end/both/none/chevrons) casing dot` | connectors, trajectories, parallel-line marks (`chevrons`) |
 | `band` | `points width fill edge edgeWidth lanes ghost` | rivers, roads, pipes, strips; `in:"grow"`, morph `points` |
 | `flow` | `along` (band/curve id) or `points`, `lanes glyph (arrow/dot/dash/chevron) size color spacing speed` | moving arrows, particles, packets |
-| `angle` | `at from to r fill label` | angle wedges with letter badge (degrees, counter-clockwise from →) |
+| `angle` | `vertex from to r fill label` | angle wedges with letter badge (degrees, counter-clockwise from →) |
 | `text` | `text size font (title/body/mono/label) weight color align maxWidth italic upper` | free text |
 | `tag` | `text fill color size font torn` | equation chips, small labels, letter tags |
 | `label` | `text sub anchor bar fill size w variant` | callout card with leader line to `anchor` |

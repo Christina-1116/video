@@ -30,7 +30,7 @@ Paths below use `$SKILL` = this skill's folder. Requires Python 3 and, for previ
 |---|---|
 | topic | the user's words |
 | audience | curious general audience, age 12+ (adjust vocabulary, number of steps, examples) |
-| language | English (`en-US`); captions = narration text |
+| language | English narration (`en-US`); subtitles = narration text. Bilingual subtitles: add `tr: {zh: …}` to every cue (shown as two lines; viewers switch Both / EN / 中文 / Off) |
 | style | history/evolution → `collage`; maths/logic/proof → `papercraft`; nature/geography/process → `papermap`; product/tech at night → `nightpaper`; or compose a new one (`styleOverrides` + `palette`) |
 | tone | sets music mood + pace: calm/curious → `calm`, warm/story → `warm`, serious/history → `documentary`, kids/playful → `playful` or `upbeat` |
 | format | 16:9; 9:16 for Shorts/Reels (stack content vertically, titles `top`) |
@@ -49,7 +49,7 @@ For each cue decide the **one visible change** that lands on it (`"at": "cN"`), 
 - papercraft: `poly` shapes with `in:"draw"`, `angle` wedges, `curve` with `head:"chevrons"`, `tag` equations, `keys` that slide pieces (`x`,`y`) to prove a point.
 - papermap: `poly smooth` land/sea, `band` rivers/roads (`in:"grow"`, morph `points` via `keys`), `flow` along bands, `label` cards with anchors, `counter` for years, `camera` zooms.
 Keep elements that persist across scenes in their first scene with `"until": "end"` and animate them later with `keys` at `"sceneId:cN"`.
-Coordinates: 1600×900 (16:9). Keep the top-left ~620×260 for the title and the bottom 120 px for captions (+timeline in collage).
+Coordinates: 1600×900 (16:9). Keep the top-left ~620×260 for the title and the bottom 120 px for captions (**190 px with bilingual subtitles**, +timeline in collage); put labels and tags left/right of centre near the bottom, never under the subtitle block.
 
 ## ④ Build
 ```bash
@@ -66,14 +66,22 @@ Open `preview/storyboard.png` (and single frames where needed) and check: nothin
 labels readable, layers in the right order (`z`), morphs/moves land where intended, contrast on coloured backgrounds.
 Iterate on the JSON, rebuild, re-preview. Then give the user the `.html` (and the storyboard image).
 
-## ⑥ Voice & export (optional)
-- **Default narration = the viewer's browser speech engine** (best-ranked English voice; Edge "Natural"/Chrome "Google US English"/macOS "Samantha"…; listeners can pick another voice in ⚙). The timeline waits for each sentence, so sync holds with any voice.
-- **Recorded voice (consistent, best quality)**: `python3 $SKILL/scripts/tts.py story.json` (edge-tts, default `en-US-AndrewNeural`) → `story.voiced.json` → build. Or generate clips with any TTS (e.g. LibTV `synthesize_speech` with `speech-2.8-hd` and an `English_*` voice), save as `voice/<sceneId>-<n>.mp3`, then `tts.py story.json --attach`. Clip lengths become the timeline; the recorded track is the master clock. `build.py --inline-audio` embeds clips into the single file.
-- **MP4**: `node $SKILL/scripts/export_mp4.js video.html --out video.mp4` (frames + rendered music + recorded clips; browser speech can't be captured).
+## ⑥ Voice — record it whenever the user needs guaranteed sound
+- **Recorded voice (default when sound must be guaranteed)** — Kokoro, an offline neural TTS with accurate English:
+  ```bash
+  pip install kokoro-onnx soundfile          # model: kokoro-v1.0.onnx + voices-v1.0.bin (github.com/thewh1teagle/kokoro-onnx releases, model-files-v1.0)
+  python3 $SKILL/scripts/tts.py story.json --model-dir <dir> --voice af_heart     # → voice/<scene>-<n>.mp3 + story.voiced.json
+  python3 $SKILL/scripts/build.py story.voiced.json -o video.html --inline-audio  # one file with the voice inside
+  ```
+  Voices: `af_heart` (best), `af_bella`, `am_michael`, `am_fenrir` (US) · `bf_emma`, `bm_george` (UK). Alternatives: `--engine edge`, or any clips (LibTV `synthesize_speech` + `speech-2.8-hd` + `English_*` voice, ElevenLabs, a human) saved as `voice/<sceneId>-<n>.mp3` then `tts.py story.json --attach`.
+  Clip lengths become the timeline and the recorded track is the master clock, so animation stays locked to the voice.
+- **Fallback narration = the viewer's browser speech engine** (used automatically when no clips are attached; quality depends on the device).
+- **Verify the sound before delivering** (when tools allow): every clip non-silent (`ffmpeg -af volumedetect`), and an ASR pass (e.g. sherpa-onnx + Whisper base.en) matching the script; in a headless browser confirm clips start on cue.
+- **MP4**: `node $SKILL/scripts/export_mp4.js video.html --out video.mp4` (frames + rendered music + recorded clips, inline clips included; browser speech can't be captured).
 
 ## Player features (built in — mention them when delivering)
 Play/pause, replay, ±5 s, chapter jumps, scrubber with chapter ticks and hover titles, time readout, narration on/off,
-music on/off + volume (music auto-ducks under the voice), CC on/off + size S/M/L, speed 0.75–1.5×, voice picker,
+music on/off + volume (music auto-ducks under the voice), subtitles (multi-language: both / each / off) + size S/M/L, speed 0.75–1.5×, voice picker,
 transcript panel (click a line to jump), end screen with replay + .vtt caption download, full screen,
 keyboard shortcuts (`?` lists them), screen-reader labels and live announcements, reduced-motion mode
 (respects the OS setting), remembered preferences, `<noscript>` transcript fallback.

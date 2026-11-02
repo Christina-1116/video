@@ -38,12 +38,16 @@ const opt = (k, d) => { const i = args.indexOf('--' + k); return i >= 0 ? args[i
     inputs.push('-i', wav); const k = nIn(); filters.push(`[${k}:a]volume=1[a${k}]`); labels.push(`[a${k}]`);
   }
   const base = path.dirname(file);
-  info.cues.forEach((c) => { if (!c.audio || c.audio.startsWith('data:')) return; inputs.push('-i', path.resolve(base, c.audio)); const k = nIn(); const ms = Math.round(c.t0 * 1000); filters.push(`[${k}:a]adelay=${ms}|${ms}[a${k}]`); labels.push(`[a${k}]`); });
+  const tmpClips = [];
+  info.cues.forEach((c, i) => { if (!c.audio) return; let src = c.audio;
+    if (src.startsWith('data:')) { src = out.replace(/\.mp4$/, `.clip${i}.mp3`); fs.writeFileSync(src, Buffer.from(c.audio.split(',')[1], 'base64')); tmpClips.push(src); } else src = path.resolve(base, src);
+    inputs.push('-i', src); const k = nIn(); const ms = Math.round(c.t0 * 1000); filters.push(`[${k}:a]adelay=${ms}|${ms}[a${k}]`); labels.push(`[a${k}]`); });
   await browser.close();
   if (labels.length) {
     execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', silent, ...inputs, '-filter_complex', filters.join(';') + `;${labels.join('')}amix=inputs=${labels.length}:normalize=0[a]`, '-map', '0:v', '-map', '[a]', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-t', String(info.total), out], { stdio: 'inherit' });
     fs.unlinkSync(silent);
   } else fs.renameSync(silent, out);
   const tmpWav = out.replace(/\.mp4$/, '.music.wav'); if (fs.existsSync(tmpWav)) fs.unlinkSync(tmpWav);
+  tmpClips.forEach((p) => fs.unlinkSync(p));
   console.log(`mp4: ${out}`);
 })().catch((e) => { console.error(e); process.exit(1); });
