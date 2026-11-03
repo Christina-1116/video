@@ -14,6 +14,7 @@ description: 把一条反直觉的商业原理（定价、溢价、需求、品�
 `$SKILL` 指本目录。依赖：Python 3、ffmpeg（需要 libass）。
 **先读**：
 - `references/reference-breakdown.md`：参考片逐段拆解、单招八拍节拍、版式数值、白闪做法。
+- `references/ip-bible.md`：IP 设定与画风提示词（小满、老周、范蠡的定妆提示词，信物陶碗，场景母版，师父团模板，统一负面词）。**生成任何画面前先读。**
 - `references/three-moves.md`：三招库、按主题换招表、写招检查清单。
 - `references/episode-schema.md`：episode.json 的每个字段。
 - `examples/pricing-secret.json`：完整 3 分钟《定价的秘密》，可直接复制修改。它的产出在 `examples/pricing-secret-out/`（分镜表、提示词、字幕、样片 animatic.mp4）。
@@ -54,7 +55,7 @@ python3 $SKILL/scripts/episode.py animatic ep.json -o out/      # out/animatic.m
 先把 `shotlist.md` 和 `animatic.mp4` 交给用户确认台词与节奏，再进入花钱的生成环节。
 
 ## ⑦ 生成素材（任选可用的生成工具；本环境可用 LibTV MCP）
-1. **定妆照**：女儿、爸爸、古人各生成 1 张全身正面照，用 `cast.*.look` 做提示词。选定后把路径填进 `cast.*.ref`。之后所有镜头都要引用它们，保证人脸和服装一致。
+1. **定妆照**：按 `references/ip-bible.md` 给每位主角出三视图、表情表和场景定妆，用 `cast.*.look` 做提示词。选定后把路径填进 `cast.*.ref`。之后所有镜头都要引用它们，保证人脸和服装一致。
 2. **逐镜头首帧图**：用 `prompts.jsonl` 的 `image_prompt`，带上 `ref_images`。画面里**不要**出现字幕，字幕全部由 ASS 后期叠加。木牌、瓶标上的汉字以 `prop_state` 为准，生成后逐张核对。
 3. **图生视频**：输入首帧图和 `motion_prompt`，时长取 ≥ `dur` 的最短档位，之后由 assemble 裁剪。
 4. **配音**：按 `dialogue` 给每个角色定一个固定音色（女儿用清亮童声，爸爸用温和中年男声，古人用沉稳略带古韵的声音），每镜头一条音频，与画面合成为 `clips/<id>.mp4`；也可以让视频模型直接生成口型和人声。BGM 用轻快的民乐（古筝、竹笛），白闪处加一个“叮”的上扬音效。

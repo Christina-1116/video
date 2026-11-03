@@ -127,7 +127,7 @@ def shot_prompt(ep, s):
     parts = [s.get("framing", ""), scenes.get(s.get("set") or s["scene"], ""), s.get("action", "")]
     if s.get("prop_state"): parts.append("道具：" + s["prop_state"])
     parts += looks
-    parts.append(style.get(s["scene"], style.get("all", "")))
+    parts.append(style.get(s.get("set") or "", style.get(s["scene"], style.get("all", ""))))
     parts.append(style.get("negative", ""))
     img = "；".join(p for p in parts if p)
     motion = s.get("motion") or s.get("action", "")
