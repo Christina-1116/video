@@ -5,6 +5,7 @@
 
   check     校验结构：九段齐全、两次白闪、三招各有道具改动与领悟句、台词长度、总时长
   shotlist  生成分镜表 shotlist.md 和逐镜头生成提示词 prompts.jsonl（首帧图 + 运动描述）
+  plan      生成逐镜头生产清单 production-plan.jsonl（参考节点、首帧/视频提示词）和导出字幕 export-cues.json
   subs      生成 ASS 特效字幕（底部台词、顶部「注：」、《标题》、竖排口诀、人名、标签、收尾卡）和 SRT
   animatic  不用任何素材，按时长生成占位样片：色卡 + 镜头号 + 动作，带白闪和字幕，用于审节奏
   assemble  把 clips/<镜头id>.mp4 按剧本裁到时长、加白闪转场、配 BGM、烧字幕，导出成片
@@ -165,6 +166,29 @@ def cmd_shotlist(ep, args):
     with open(os.path.join(out, "prompts.jsonl"), "w", encoding="utf-8") as f:
         for j in jl: f.write(json.dumps(j, ensure_ascii=False) + "\n")
     print("wrote", os.path.join(out, "shotlist.md"), "and prompts.jsonl")
+
+
+def cmd_plan(ep, args):
+    """逐镜头生产清单：首帧图提示词 + 参考节点 + 运动提示词 + 时长；并输出成片导出用的字幕时间表。"""
+    out = args.out; os.makedirs(out, exist_ok=True)
+    lt = ep["meta"].get("libtv", {}); refs = lt.get("refs", {})
+    rows = []
+    for s in ep["shots"]:
+        img, motion, who = shot_prompt(ep, s)
+        r = [refs[w] for w in who if w in refs]
+        setk = s.get("set") or s["scene"]
+        if setk in refs: r.append(refs[setk])
+        if "碗" in (s.get("action", "") + s.get("prop_state", "")) and "bowl" in refs: r.append(refs["bowl"])
+        lines = "；".join(f"{ep['cast'].get(l['who'],{}).get('name', l.get('name','路人'))}说：“{l['text']}”" for l in s["lines"])
+        rows.append({"id": s["id"], "beat": s["beat"], "start": round(s["start"], 2), "dur": s["dur"],
+                     "transition": s.get("transition", "cut"), "ref_nodes": r, "image_prompt": img,
+                     "video_prompt": (motion + ("。" + lines if lines else "")), "dialogue": s["lines"]})
+    with open(os.path.join(out, "production-plan.jsonl"), "w", encoding="utf-8") as f:
+        for r in rows: f.write(json.dumps(r, ensure_ascii=False) + "\n")
+    cues = [{"start": round(a, 2), "end": round(b, 2), "text": t} for a, b, t in sub_events(ep)]
+    with open(os.path.join(out, "export-cues.json"), "w", encoding="utf-8") as f:
+        json.dump({"timebase": "output", "cues": cues}, f, ensure_ascii=False, indent=1)
+    print(f"wrote production-plan.jsonl ({len(rows)} shots) and export-cues.json ({len(cues)} cues)")
 
 
 # ───────────────────────── subtitles ─────────────────────────
@@ -367,7 +391,7 @@ def cmd_assemble(ep, args):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("cmd", choices=["check", "shotlist", "subs", "animatic", "assemble"])
+    ap.add_argument("cmd", choices=["check", "shotlist", "subs", "plan", "animatic", "assemble"])
     ap.add_argument("episode")
     ap.add_argument("-o", "--out", default="out", help="shotlist/subs 的输出目录")
     ap.add_argument("--output", help="animatic/assemble 的输出 mp4（默认 <out>/animatic.mp4 或 <out>/final.mp4）")
@@ -381,7 +405,7 @@ def main():
     ep = load(args.episode)
     if args.cmd in ("animatic", "assemble") and not args.output:
         args.output = os.path.join(args.out, "animatic.mp4" if args.cmd == "animatic" else "final.mp4")
-    {"check": cmd_check, "shotlist": cmd_shotlist, "subs": cmd_subs,
+    {"check": cmd_check, "shotlist": cmd_shotlist, "subs": cmd_subs, "plan": cmd_plan,
      "animatic": cmd_animatic, "assemble": cmd_assemble}[args.cmd](ep, args)
 
 

@@ -50,6 +50,7 @@ description: 把一条反直觉的商业原理（定价、溢价、需求、品�
 python3 $SKILL/scripts/episode.py check    ep.json              # 必须 ok，warn 也要看
 python3 $SKILL/scripts/episode.py shotlist ep.json -o out/      # out/shotlist.md + out/prompts.jsonl
 python3 $SKILL/scripts/episode.py subs     ep.json -o out/      # out/subs.ass + out/subs.srt
+python3 $SKILL/scripts/episode.py plan     ep.json -o out/      # out/production-plan.jsonl（每镜参考节点+首帧/视频提示词）+ out/export-cues.json（LibTV export_video 字幕）
 python3 $SKILL/scripts/episode.py animatic ep.json -o out/      # out/animatic.mp4：色卡 + 镜头说明 + 全部叠字 + 白闪
 ```
 先把 `shotlist.md` 和 `animatic.mp4` 交给用户确认台词与节奏，再进入花钱的生成环节。
