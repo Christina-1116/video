@@ -13,6 +13,10 @@ LibTV 项目「小满拜师记 · 人物定妆」`5a7818c0139f4ece94f72641b3a01c
 | 老周 | 三视图第 2 版 | `i-uBrqEC7r97` | `db07f25afc7f40a8bccbacff0af5d17b` |
 | 范蠡 | 三视图第 3 版 | `i-8KCjWZ6frO` | `d6bb11360c36403190906b8c02d47671` |
 
+| 三人同框 | 身高测试第 1 版 | `i-lLhOYzIqca` | — |
+
+表情表（已通过）：小满 `i-2wosA0M0Z3`、老周 `i-ZaKL7MToMO`、范蠡 `i-9IfC23tees`。
+
 原图地址写在 `examples/pricing-secret.json` 的 `cast.*.ref`。之后所有镜头都要把这三个节点接为参考图。
 
 ## 一、全局画风（每个提示词末尾都要拼上）
